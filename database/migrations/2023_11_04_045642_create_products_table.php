@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('display_pic');
             $table->string('description');
             $table->unsignedFloat('pv')->comment('Point value');
+            $table->unsignedFloat('original_price');
             $table->timestamps();
         });
     }
