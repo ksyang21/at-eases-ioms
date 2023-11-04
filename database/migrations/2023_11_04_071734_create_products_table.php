@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('display_pic');
-            $table->string('description');
+            $table->text('description');
             $table->unsignedFloat('pv')->comment('Point value');
             $table->unsignedFloat('original_price');
             $table->timestamps();
