@@ -11,7 +11,9 @@ class Package extends Model
 
     public $timestamps = true;
 
-//    protected $fillable = [
-//        ''
-//    ]
+    protected $fillable = [
+        'name',
+        'description',
+        'status',
+    ];
 }
