@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->unsignedFloat('pv')->comment('Point value');
-            $table->unsignedFloat('original_price');
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
