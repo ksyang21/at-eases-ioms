@@ -107,7 +107,9 @@ function searchProduct() {
                                     <p class="text-sm mt-2">{{ product.description }}</p>
                                     <div class="flex items-center mt-2">
                                         <div class="ml-auto">
-                                            <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
+                                            <Link :href="route('product.edit', product.id)">
+                                                <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
+                                            </Link>
                                             <Link :href="route('package.index', product.id)">
                                                 <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
                                             </Link>
@@ -152,8 +154,12 @@ function searchProduct() {
                                             RM{{ parseFloat(product.price).toFixed(2) }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
-                                            <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
+                                            <Link :href="route('product.edit', product.id)">
+                                                <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
+                                            </Link>
+                                            <Link :href="route('package.index', product.id)">
+                                                <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
+                                            </Link>
                                             <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
                                         </td>
                                     </tr>

@@ -13,8 +13,8 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Dashboard
                 </Link>
             </li>
-            <li class="nav-item" :class="route().current('products') ? 'active-link' : ''">
-                <Link :href="route('products')" :active="route().current('products')" class="nav-link">
+            <li class="nav-item" :class="route().current('product.index') ? 'active-link' : ''">
+                <Link :href="route('product.index')" :active="route().current('product.index')" class="nav-link">
                     <font-awesome-icon icon="boxes-stacked" class="mx-1"/>
                     Product
                 </Link>
