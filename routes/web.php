@@ -37,11 +37,15 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/products', function () {
     return Inertia::render('Product/Index');
-})->middleware('auth')->name('products');
+})->middleware('auth')->name('product.index');
 
 
 Route::get('/package/{product_id}', function () {
     return Inertia::render('Package/Index');
 })->middleware('auth')->name('package.index');
+
+Route::get('/edit-product/{product_id}', function() {
+    return Inertia::render('Product/Edit');
+})->middleware('auth')->name('product.edit');
 
 require __DIR__ . '/auth.php';
