@@ -17,7 +17,7 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    if(auth()->check()) {
+    if (auth()->check()) {
         return redirect()->route('dashboard');
     } else {
         return redirect()->route('login');
@@ -35,8 +35,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/products', function() {
+Route::get('/products', function () {
     return Inertia::render('Product/Index');
 })->middleware('auth')->name('products');
 
-require __DIR__.'/auth.php';
+
+Route::get('/package/{product_id}', function () {
+    return Inertia::render('Package/Index');
+})->middleware('auth')->name('package.index');
+
+require __DIR__ . '/auth.php';
