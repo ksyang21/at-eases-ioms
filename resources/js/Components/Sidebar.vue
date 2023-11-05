@@ -4,72 +4,35 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 </script>
 
 <template>
-    <!--    <nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white hidden md:block mt-16 h-full" id="sidenav-main">-->
-    <!--        <div class="scroll-wrapper scrollbar-inner" style="position: relative;">-->
-    <!--            <div class="scrollbar-inner scroll-content mb-0 mr-0 bg-black">-->
-    <!--                <div class="navbar-inner bg-black">-->
-    <!--                    <div class="collapse navbar-collapse" id="sidenav-collapse-main">-->
-    <!--                        <ul class="navbar-nav">-->
-    <!--                            <li class="nav-item">-->
-    <!--                                <Link :href="route('dashboard')" class="text-white">-->
-    <!--                                    Dashboard-->
-    <!--                                </Link>-->
-    <!--                            </li>-->
-    <!--                            <li class="nav-item">-->
-    <!--                                <Link :href="route('dashboard')">-->
-    <!--                                    Dashboard-->
-    <!--                                </Link>-->
-    <!--                            </li>-->
-    <!--                            <li class="nav-item">-->
-    <!--                                <Link :href="route('dashboard')">-->
-    <!--                                    Dashboard-->
-    <!--                                </Link>-->
-    <!--                            </li>-->
-    <!--                        </ul>-->
-
-    <!--                        <hr class="my-3">-->
-
-    <!--                        <ul class="navbar-nav mb-md-3">-->
-    <!--                            <li class="nav-item">-->
-    <!--                                <Link :href="route('dashboard')">-->
-    <!--                                    Log out-->
-    <!--                                </Link>-->
-    <!--                            </li>-->
-    <!--                        </ul>-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--        </div>-->
-    <!--    </nav>-->
     <aside class="sidebar py-4 bg-white hidden md:block mt-16 h-full">
         <!-- Sidebar content goes here -->
         <ul>
             <li class="nav-item" :class="route().current('dashboard') ? 'active-link' : ''">
-                <Link :href="route('dashboard')" :active="route().current('dashboard')">
+                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="house-chimney" class="mx-1"/>
                     Dashboard
                 </Link>
             </li>
-            <li class="nav-item">
-                <Link :href="route('dashboard')">
+            <li class="nav-item" :class="route().current('products') ? 'active-link' : ''">
+                <Link :href="route('products')" :active="route().current('products')" class="nav-link">
                     <font-awesome-icon icon="boxes-stacked" class="mx-1"/>
                     Product
                 </Link>
             </li>
             <li class="nav-item">
-                <Link :href="route('dashboard')">
+                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="warehouse" class="mx-1"/>
                     Inventory
                 </Link>
             </li>
             <li class="nav-item">
-                <Link :href="route('dashboard')">
+                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="circle-dollar-to-slot" class="mx-1"/>
                     Sales Order
                 </Link>
             </li>
             <li class="nav-item">
-                <Link :href="route('dashboard')">
+                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="sitemap" class="mx-1"/>
                     Members
                 </Link>
@@ -92,9 +55,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 }
 
 .nav-item {
-    margin-left: 16px;
-    margin-right: 16px;
-    padding: 12px;
+    margin: 8px 16px;
     border-radius: 8px;
 }
 
@@ -109,5 +70,12 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
     font-weight: bold;
     border-left: 5px solid #d71d28;
     border-radius: 0;
+}
+
+.nav-link {
+    display: block; /* Make the link a block-level element */
+    padding: 12px;
+    text-decoration: none;
+    color: inherit;
 }
 </style>
