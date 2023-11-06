@@ -1,5 +1,6 @@
 import './bootstrap';
 import '../css/app.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
@@ -13,6 +14,17 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons';
 
+/**
+ * Vue3 Datepicker
+ */
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+
+/**
+ * Sweetalert2
+ */
+import VueSweetalert2 from "vue-sweetalert2";
+
 library.add(fas)
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -24,7 +36,9 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .component('font-awesome-icon', FontAwesomeIcon)
+            .component('VueDatePicker', VueDatePicker)
             .use(ZiggyVue, Ziggy)
+            .use(VueSweetalert2)
             .mount(el);
     },
     progress: {

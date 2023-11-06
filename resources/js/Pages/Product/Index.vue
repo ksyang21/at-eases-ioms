@@ -10,24 +10,12 @@ let listView = ref(false)
 
 let search = ref('')
 
-const props = [
-    {
-        id: 1,
-        name: 'Item 1',
-        price: '20.0',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam',
-        pv: 10
-    },
-    {
-        id: 1,
-        name: 'Item 1',
-        price: '20.0',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam',
-        pv: 20
-    },
-]
 
-let products = reactive(props)
+const props = defineProps({
+    products: Object
+})
+
+let products = reactive(props.products)
 
 function changeToListView() {
     listView.value = true
@@ -90,30 +78,46 @@ function searchProduct() {
                             </div>
                         </div>
                         <div v-show="!listView" class="md:flex md:items-center w-full">
-                            <div
-                                class="flex flex-col bg-gray-200 rounded-lg w-full md:w-1/2 lg:w-1/4 h-full mt-2 md:mt-0 product-card border-2 border-gray-100"
-                                v-for="(product, index) in products" :key="index">
-                                <div class="relative">
-                                    <img src="../../../images/coke.jpeg" alt="coke" class="rounded w-full">
-                                    <p class="pv text-2xl shadow-lg px-3 py-1 bg-red-500 text-white rounded-md">{{parseInt(product.pv)}} PV</p>
-                                </div>
-                                <div class="p-4">
-                                    <div class="flex items-center mt-3">
-                                        <p class="font-semibold text-xl">{{ product.name }}</p>
-                                        <p class="text-gray-600 text-xl ml-auto">
-                                            RM{{ parseFloat(product.price).toFixed(2) }}
-                                        </p>
+                            <div class="grid gap-3 mb-6 md:grid-cols-5">
+                                <div
+                                    class="flex flex-col rounded-lg w-full h-full mt-2 md:mt-0 product-card border-2 border-gray-100"
+                                    :class="product.status === 'inactive' ? 'bg-gray-300' : ''"
+                                    v-for="(product, index) in products" :key="index">
+                                    <div class="relative">
+                                        <img src="../../../images/coke.jpeg" alt="coke"
+                                             class="rounded w-full tile-view-img border-b-2 border-gray-100"
+                                             :class="product.status === 'inactive' ? 'inactive-product' : ''"
+                                        >
+                                        <p class="pv text-2xl shadow-lg px-3 py-1 bg-red-500 text-white rounded-md"
+                                           v-if="product.status === 'active'">
+                                            {{ parseInt(product.pv) }} PV</p>
                                     </div>
-                                    <p class="text-sm mt-2">{{ product.description }}</p>
-                                    <div class="flex items-center mt-2">
-                                        <div class="ml-auto">
-                                            <Link :href="route('product.edit', product.id)">
-                                                <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
-                                            </Link>
-                                            <Link :href="route('package.index', product.id)">
-                                                <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
-                                            </Link>
-                                            <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                    <div class="p-4">
+                                        <div class="flex items-center mt-3">
+                                            <p class="font-semibold text-xl" v-if="product.status === 'active'">
+                                                <font-awesome-icon icon="check-circle" class="text-green-700"/>
+                                                {{ product.name }}
+                                            </p>
+                                            <p class="font-semibold text-xl" v-else>
+                                                <span class="px-2.5 bg-gray-400 rounded-md text-sm mr-2">Inactive</span>
+                                                {{ product.name }}
+                                            </p>
+                                            <p class="text-gray-600 text-xl ml-auto">
+                                                RM{{ parseFloat(product.price).toFixed(2) }}
+                                            </p>
+                                        </div>
+                                        <p class="text-sm mt-2">{{ product.description }}</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="ml-auto">
+                                                <Link :href="route('product.edit', product.id)">
+                                                    <font-awesome-icon icon="pen-to-square"
+                                                                       class="ml-2 product-action-btn"/>
+                                                </Link>
+                                                <Link :href="route('package.index', product.id)">
+                                                    <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
+                                                </Link>
+                                                <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -138,14 +142,20 @@ function searchProduct() {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                    <tr class=" border-b hover:bg-gray-50"
+                                        :class="product.status === 'inactive' ? 'bg-gray-300' : 'bg-white'"
                                         v-for="(product, index) in products" :key="index">
                                         <th scope="row"
                                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                             <div class="flex">
-                                                <img src="../../../images/coke.jpeg" alt="coke" class="list-view-img">
+                                                <img src="../../../images/coke.jpeg" alt="coke" class="list-view-img"
+                                                     :class="product.status === 'inactive' ? 'inactive-product' : ''">
                                                 <div class="flex flex-col">
-                                                    <p class="text-2xl font-semibold">{{ product.name }}</p>
+                                                    <p class="text-2xl font-semibold" v-if="product.status==='active'">{{ product.name }}</p>
+                                                    <p class="text-2xl font-semibold flex items-center" v-else>
+                                                        <span class="px-2.5 bg-gray-400 rounded-md mr-2 font-normal text-sm">Inactive</span>
+                                                        {{ product.name }}
+                                                    </p>
                                                     <p>{{ product.description }}</p>
                                                 </div>
                                             </div>
@@ -155,7 +165,8 @@ function searchProduct() {
                                         </td>
                                         <td class="px-6 py-4">
                                             <Link :href="route('product.edit', product.id)">
-                                                <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
+                                                <font-awesome-icon icon="pen-to-square"
+                                                                   class="ml-2 product-action-btn"/>
                                             </Link>
                                             <Link :href="route('package.index', product.id)">
                                                 <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
@@ -189,10 +200,6 @@ function searchProduct() {
     font-weight: bold;
 }
 
-.product-card + .product-card:not(:first-child) {
-    margin-left: 20px;
-}
-
 .list-view-img {
     width: 50px;
     height: 50px;
@@ -205,5 +212,15 @@ function searchProduct() {
     position: absolute;
     top: 8px;
     right: 8px;
+}
+
+.tile-view-img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.inactive-product {
+    filter: grayscale(100%);
 }
 </style>

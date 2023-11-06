@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->unsignedFloat('pv')->comment('Point value');
             $table->decimal('price', 10, 2);
+            $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });
     }

@@ -4,15 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
-        //
+        $products = Product::orderBy('status')->get();
+
+        return Inertia::render('Product/Index', [
+            'products' => $products
+        ]);
     }
 
     /**
@@ -42,9 +47,12 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(String $id)
     {
-        //
+        $product = Product::find($id);
+        return Inertia::render('Product/Edit', [
+            'product' => $product
+        ]);
     }
 
     /**

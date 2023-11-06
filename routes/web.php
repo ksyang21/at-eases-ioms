@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -30,22 +32,32 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware('auth')->group(function () {
+    /**
+     * User Profile
+     */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /**
+     * Products
+     */
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/edit-product/{product_id}', [ProductController::class, 'edit'])->name('product.edit');
+
+    /**
+     * Orders
+     */
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/order/{order_id}', [OrderController::class, 'show'])->name('order.show');
 });
 
-Route::get('/products', function () {
-    return Inertia::render('Product/Index');
-})->middleware('auth')->name('product.index');
-
+Route::get('/inventory', function () {
+    return Inertia::render('Inventory/Index');
+})->middleware('auth')->name('inventory.index');
 
 Route::get('/package/{product_id}', function () {
     return Inertia::render('Package/Index');
 })->middleware('auth')->name('package.index');
-
-Route::get('/edit-product/{product_id}', function() {
-    return Inertia::render('Product/Edit');
-})->middleware('auth')->name('product.edit');
 
 require __DIR__ . '/auth.php';

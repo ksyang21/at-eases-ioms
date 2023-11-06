@@ -8,7 +8,7 @@ const items = [
     },
     {
         label: 'Products',
-        link: 'product.index'
+        link: 'products.index'
     }
 ]
 </script>

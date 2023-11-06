@@ -13,22 +13,22 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Dashboard
                 </Link>
             </li>
-            <li class="nav-item" :class="route().current('product.index') ? 'active-link' : ''">
-                <Link :href="route('product.index')" :active="route().current('product.index')" class="nav-link">
+            <li class="nav-item" :class="route().current('orders.index') || route().current('order.show') ? 'active-link' : ''">
+                <Link :href="route('orders.index')" :active="route().current('orders.index')" class="nav-link">
+                    <font-awesome-icon icon="circle-dollar-to-slot" class="mx-1"/>
+                    Sales Order
+                </Link>
+            </li>
+            <li class="nav-item" :class="route().current('products.index') || route().current('product.edit') || route().current('package.index') ? 'active-link' : ''">
+                <Link :href="route('products.index')" :active="route().current('products.index')" class="nav-link">
                     <font-awesome-icon icon="boxes-stacked" class="mx-1"/>
                     Product
                 </Link>
             </li>
-            <li class="nav-item">
-                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
+            <li class="nav-item" :class="route().current('inventory.index') ? 'active-link' : ''">
+                <Link :href="route('inventory.index')" :active="route().current('inventory.index')" class="nav-link">
                     <font-awesome-icon icon="warehouse" class="mx-1"/>
                     Inventory
-                </Link>
-            </li>
-            <li class="nav-item">
-                <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
-                    <font-awesome-icon icon="circle-dollar-to-slot" class="mx-1"/>
-                    Sales Order
                 </Link>
             </li>
             <li class="nav-item">
