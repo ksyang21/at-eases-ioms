@@ -3,24 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Package;
+use App\Models\PackageProduct;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PackageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Product $product)
     {
-        //
+        $get_packages = PackageProduct::where('product_id', $product->id)->get();
+        $packages     = [];
+        foreach ($get_packages as $get_package) {
+            $package_id = $get_package->package_id;
+            $package    = Package::where('id', $package_id)->first();
+            $details    = PackageProduct::where('package_id', $package_id)->first();
+            $packages[] = [
+                'package' => $package,
+                'details' => $details,
+            ];
+        }
+        return Inertia::render('Package/Index', [
+            'packages' => $packages,
+            'product'  => $product,
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Product $product): \Inertia\Response
     {
-        //
+        $get_packages = PackageProduct::where('product_id', $product->id)->get();
+        $packages     = [];
+        foreach ($get_packages as $get_package) {
+            $package_id = $get_package->package_id;
+            $package    = Package::where('id', $package_id)->first();
+            $details    = PackageProduct::where('package_id', $package_id)->first();
+            $packages[] = [
+                'package' => $package,
+                'details' => $details,
+            ];
+        }
+        return Inertia::render('Package/Create', [
+            'product'  => $product,
+            'packages' => $packages,
+            //            'all_products' => $all_products,
+        ]);
     }
 
     /**

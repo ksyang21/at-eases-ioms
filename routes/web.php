@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -40,10 +42,20 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     /**
-     * Products
+     * Inventory
      */
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/edit-product/{product_id}', [ProductController::class, 'edit'])->name('product.edit');
+    Route::get('/edit-product/{product}', [ProductController::class, 'edit'])->name('product.edit');
+    Route::get('/add-product', [ProductController::class, 'create'])->name('product.create');
+    Route::post('/product', [ProductController::class, 'store'])->name('product.store');
+    Route::put('/product/{product}', [ProductController::class, 'update'])->name('product.update');
+    Route::delete('/product/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+    /**
+     * Packages
+     */
+    Route::get('/packages/{product}', [PackageController::class, 'index'])->name('package.index');
+    Route::get('/add-package/{product}', [PackageController::class, 'create'])->name('package.create');
 
     /**
      * Orders
@@ -56,8 +68,5 @@ Route::get('/inventory', function () {
     return Inertia::render('Inventory/Index');
 })->middleware('auth')->name('inventory.index');
 
-Route::get('/package/{product_id}', function () {
-    return Inertia::render('Package/Index');
-})->middleware('auth')->name('package.index');
 
 require __DIR__ . '/auth.php';

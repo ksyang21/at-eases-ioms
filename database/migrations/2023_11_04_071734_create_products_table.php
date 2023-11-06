@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->unsignedFloat('pv')->comment('Point value');
             $table->decimal('price', 10, 2);
+            $table->unsignedInteger('stock_quantity')->default(0);
+            $table->string('image')->default(NULL)->nullable();
             $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });

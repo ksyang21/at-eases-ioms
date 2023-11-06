@@ -1,19 +1,14 @@
 <script setup>
 
-import {Head} from "@inertiajs/vue3";
+import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
-const packages = [
-    {
-        id: 1,
-        name: 'Package 1',
-        quantity: 2,
-        price: 10,
-        pv: 15
-    }
-]
+const props = defineProps({
+    packages: Object,
+    product: Object
+})
 </script>
 
 <template>
@@ -26,16 +21,18 @@ const packages = [
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
-                        <p class="text-2xl">Item 1</p>
-                        <button type="button"
+                        <div class="flex flex-col">
+                            <p class="text-xl">{{product.name}}</p>
+                            <p class="text-sm text-gray-600">Total <b>{{ packages.length }}</b> packages</p>
+                        </div>
+                        <Link :href="route('package.create', product.id)"
                                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 ml-auto flex items-center">
                             <font-awesome-icon icon="plus-circle" class="mr-2"/>
                             New Package
-                        </button>
+                        </Link>
                     </div>
                     <div class="pt-3 pb-6 px-6">
                         <div class="flex items-center">
-                            <p class="ml-auto">Total <b>100</b> packages</p>
                         </div>
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
@@ -62,13 +59,13 @@ const packages = [
                                     v-for="(item, index) in packages" :key="index">
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <p class="font-semibold">{{ item.name }}</p>
+                                        <p class="font-semibold">{{ item.package.name }}</p>
                                     </th>
                                     <td class="px-6 py-4">
-                                        {{item.quantity}}
+                                        {{ item.details.quantity }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        RM{{ parseFloat(item.price).toFixed(2) }}
+                                        RM{{ parseFloat(item.details.price).toFixed(2) }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>

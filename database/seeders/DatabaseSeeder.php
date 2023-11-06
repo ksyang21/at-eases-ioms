@@ -67,11 +67,12 @@ class DatabaseSeeder extends Seeder
         $products = [];
         for ($i = 1; $i <= 6; $i++) {
             $products[] = Product::create([
-                'name'        => 'Item ' . $i,
-                'description' => fake()->text(),
-                'pv'          => 10,
-                'price'       => fake()->randomFloat(2, 0, 30),
-                'status'      => 'active',
+                'name'           => 'Item ' . $i,
+                'description'    => fake()->text(),
+                'pv'             => 10,
+                'price'          => fake()->randomFloat(2, 0, 30),
+                'stock_quantity' => rand(50,300),
+                'status'         => 'active',
             ]);
         }
 
@@ -145,7 +146,7 @@ class DatabaseSeeder extends Seeder
                 'order_id'   => $i,
                 'product_id' => 1,
                 'quantity'   => 1,
-                'price' => 50,
+                'price'      => 50,
             ]);
         }
         // \App\Models\User::factory(10)->create();
