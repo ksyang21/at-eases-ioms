@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/packages/{product}', [PackageController::class, 'index'])->name('package.index');
     Route::get('/add-package/{product}', [PackageController::class, 'create'])->name('package.create');
+    Route::post('/package', [PackageController::class, 'store'])->name('package.store');
 
     /**
      * Orders

@@ -101,7 +101,6 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
-        dd($request->request);
         $validator = Validator::make($request->all(), [
             'name'        => [
                 'required',

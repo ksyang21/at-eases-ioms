@@ -54,7 +54,7 @@ const props = defineProps({
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
+                                <tbody v-if="packages.length > 0">
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                     v-for="(item, index) in packages" :key="index">
                                     <th scope="row"
@@ -71,6 +71,11 @@ const props = defineProps({
                                         <font-awesome-icon icon="pen-to-square" class="ml-2 product-action-btn"/>
                                         <font-awesome-icon icon="trash" class="ml-2 text-red-600"/>
                                     </td>
+                                </tr>
+                                </tbody>
+                                <tbody v-else>
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center">No package available</td>
                                 </tr>
                                 </tbody>
                             </table>

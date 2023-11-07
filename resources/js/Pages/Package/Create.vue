@@ -1,6 +1,6 @@
 <script setup>
 
-import {Head, Link} from "@inertiajs/vue3";
+import {Head, Link, router} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import {inject, reactive, ref} from "vue";
@@ -16,17 +16,26 @@ const props = defineProps({
 let form = reactive({
     product_id: props.product.id,
     name: '',
+    description: '',
     quantity: 0,
     price: 0.00
 })
 
+let canSubmit = ref(true)
 let showError = ref(false)
+
 function submitForm() {
-    if(form.name === '' || form.quantity < 1 || form.price < 0.00) {
+    if (form.name === '' || form.quantity < 1 || form.price < 0.00) {
         showError.value = true
+        canSubmit.value = false
     }
-    if(checkPackageExists()) {
+    if (checkPackageExists()) {
         showError.value = true
+        canSubmit.value = false
+    }
+
+    if(canSubmit.value) {
+        router.post('/package', form)
     }
 }
 
@@ -34,15 +43,14 @@ function checkPackageExists() {
     let isPackageExist = false
     let existingPackage = {}
 
-    for(let item of props.packages) {
-        if(item.package.name === form.name || item.details.quantity === form.quantity) {
+    for (let item of props.packages) {
+        if (item.package.name === form.name || item.details.quantity === form.quantity) {
             isPackageExist = true
             existingPackage = item
         }
     }
 
-    if(isPackageExist) {
-        console.log(existingPackage)
+    if (isPackageExist) {
         Swal.fire({
             title: 'Package exists!',
             html: `Name : ${existingPackage.package.name}<br>Quantity: ${existingPackage.details.quantity}<br>Price: RM${existingPackage.details.price}`,
@@ -85,20 +93,33 @@ function checkPackageExists() {
                                 <p class="text-red-600 text-sm" v-if="showError && form.name === ''">Package
                                     name is required</p>
                             </div>
+                            <div id="package-description-group" class="mb-6">
+                                <label for="message"
+                                       class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+                                <textarea id="message" rows="4"
+                                          class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                          placeholder="Package Description"
+                                          v-model="form.description"></textarea>
+                            </div>
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div>
-                                    <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Price (MYR)</label>
+                                    <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Price
+                                        (MYR)</label>
                                     <input type="number" id="price"
                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                           placeholder="Product Original Price" required v-model="form.price" step="0.01">
-                                    <p class="text-red-600 text-sm" v-if="showError && form.price <= 0.00">Price must not be less than 0.01</p>
+                                           placeholder="Product Original Price" required v-model="form.price"
+                                           step="0.01">
+                                    <p class="text-red-600 text-sm" v-if="showError && form.price <= 0.00">Price must
+                                        not be less than 0.01</p>
                                 </div>
                                 <div>
-                                    <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900">Quantity</label>
+                                    <label for="quantity"
+                                           class="block mb-2 text-sm font-medium text-gray-900">Quantity</label>
                                     <input type="number" id="quantity"
                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                            placeholder="Point Value" required v-model="form.quantity">
-                                    <p class="text-red-600 text-sm" v-if="showError && form.quantity < 1">Quantity must not be less than 1</p>
+                                    <p class="text-red-600 text-sm" v-if="showError && form.quantity < 1">Quantity must
+                                        not be less than 1</p>
                                 </div>
                             </div>
                         </div>
