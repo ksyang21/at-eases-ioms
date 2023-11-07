@@ -20,4 +20,9 @@ class Product extends Model
         'image',
         'status'
     ];
+
+    public function inventoryLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventoryLog::class, 'product_id', 'id');
+    }
 }
