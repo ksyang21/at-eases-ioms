@@ -190,7 +190,7 @@ function showImage() {
                                                                    class="ml-2 product-action-btn text-blue-700"/>
                                             </Link>
                                             <Link :href="route('package.index', product.id)">
-                                                <font-awesome-icon icon="box-open" class="ml-2 product-action-btn"/>
+                                                <font-awesome-icon icon="box-open" class="ml-2 product-action-btn text-orange-400"/>
                                             </Link>
                                             <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
                                         </td>
