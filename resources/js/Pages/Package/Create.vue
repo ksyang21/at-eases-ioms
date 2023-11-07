@@ -25,6 +25,9 @@ let canSubmit = ref(true)
 let showError = ref(false)
 
 function submitForm() {
+    showError.value = true
+    canSubmit.value = true
+
     if (form.name === '' || form.quantity < 1 || form.price < 0.00) {
         showError.value = true
         canSubmit.value = false
