@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/inventory-logs/{product}', [InventoryLogController::class, 'index'])->name('inventoryLogs.index');
     Route::get('/add-inventory-logs/{product}', [InventoryLogController::class, 'create'])->name('inventoryLogs.create');
+    Route::post('/inventory-logs/{product}', [InventoryLogController::class, 'store'])->name('inventoryLogs.store');
 
     /**
      * Packages

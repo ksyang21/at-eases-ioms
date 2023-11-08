@@ -13,7 +13,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Dashboard
                 </Link>
             </li>
-            <li class="nav-item" :class="route().current('products.index') || route().current('product.edit') || route().current('package.index') || route().current('product.create')? 'active-link' : ''">
+            <li class="nav-item" :class="route().current('products.index') || route().current('product.edit') || route().current('package.index') || route().current('product.create') || route().current('inventoryLogs.index') || route().current('inventoryLogs.create')? 'active-link' : ''">
                 <Link :href="route('products.index')" :active="route().current('products.index')" class="nav-link">
                     <font-awesome-icon icon="warehouse" class="mx-1"/>
                     Inventory
