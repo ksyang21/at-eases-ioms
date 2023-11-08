@@ -97,7 +97,9 @@ function showImage() {
                                                 <font-awesome-icon icon="box-open"
                                                                    class="ml-2 product-action-btn text-orange-400"/>
                                             </Link>
-                                            <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                            <Link :href="route('inventoryLogs.index', product.id)">
+                                                <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                            </Link>
                                         </div>
                                     </div>
                                     <div class="relative">
@@ -119,9 +121,9 @@ function showImage() {
                                             </p>
                                             <div class="flex flex-col items-start" v-else>
                                                 <span class="px-2.5 bg-gray-400 rounded-md text-sm mr-2">Inactive</span>
-                                            <p class="font-semibold text-xl" >
-                                                {{ product.name }}
-                                            </p></div>
+                                                <p class="font-semibold text-xl">
+                                                    {{ product.name }}
+                                                </p></div>
                                             <p class="text-gray-600 text-xl ml-auto">
                                                 RM{{ parseFloat(product.price).toFixed(2) }}
                                             </p>
@@ -169,7 +171,8 @@ function showImage() {
                                                     <p class="text-2xl font-semibold" v-if="product.status==='active'">
                                                         {{ product.name }}</p>
                                                     <div class="flex flex-col items-start" v-else>
-                                                        <span class="px-2.5 bg-gray-400 rounded-md mr-2 font-normal text-sm ">Inactive</span>
+                                                        <span
+                                                            class="px-2.5 bg-gray-400 rounded-md mr-2 font-normal text-sm ">Inactive</span>
                                                         <p class="text-2xl font-semibold">
                                                             {{ product.name }}
                                                         </p>
@@ -190,9 +193,12 @@ function showImage() {
                                                                    class="ml-2 product-action-btn text-blue-700"/>
                                             </Link>
                                             <Link :href="route('package.index', product.id)">
-                                                <font-awesome-icon icon="box-open" class="ml-2 product-action-btn text-orange-400"/>
+                                                <font-awesome-icon icon="box-open"
+                                                                   class="ml-2 product-action-btn text-orange-400"/>
                                             </Link>
-                                            <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                            <Link :href="route('inventoryLogs.index', product.id)">
+                                                <font-awesome-icon icon="warehouse" class="ml-2 product-action-btn"/>
+                                            </Link>
                                         </td>
                                     </tr>
                                     </tbody>

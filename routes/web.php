@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProductController;
@@ -50,6 +51,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/product', [ProductController::class, 'store'])->name('product.store');
     Route::put('/product/{product}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+    /**
+     * Inventory Logs
+     */
+    Route::get('/inventory-logs/{product}', [InventoryLogController::class, 'index'])->name('inventoryLogs.index');
+    Route::get('/add-inventory-logs/{product}', [InventoryLogController::class, 'create'])->name('inventoryLogs.create');
 
     /**
      * Packages
