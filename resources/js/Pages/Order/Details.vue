@@ -81,59 +81,57 @@ for (let detail of props.order.details) {
                         </div>
                     </div>
                     <div class="p-6 mx-2 block md:flex border-b-2 border-gray-100">
-                        <div class="w-full md:w-1/2 px-4">
+                        <div class="w-full md:w-1/2 mx-6">
                             <div id="product-section">
                                 <p class="text-red-600">
                                     <font-awesome-icon icon="boxes" class="mr-2"/>
                                     Product
                                 </p>
-                                <div class="ml-[24px]">
-                                    <div class="relative overflow-x-auto sm:rounded-lg mt-4">
-                                        <table
-                                            class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
-                                            <thead
-                                                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                            <tr>
-                                                <th scope="col" class="px-6 py-3">
-                                                    Product
-                                                </th>
-                                                <th scope="col" class="px-6 py-3">
-                                                    Quantity
-                                                </th>
-                                                <th scope="col" class="px-6 py-3">
-                                                    Price
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr class="bg-white border-b"
-                                                v-for="(detail, index) in order.details" :key="index">
-                                                <th scope="row"
-                                                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    <p class="font-semibold">{{ detail.product.name }}</p>
-                                                </th>
-                                                <td class="px-6 py-4">
-                                                    {{ detail.quantity }}
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    RM{{ parseFloat(detail.price).toFixed(2) }}
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                            <tfoot>
-                                            <tr class="bg-gray-100">
-                                                <td class="px-6 py-3">Total</td>
-                                                <td class="px-6 py-3">
-                                                    {{ totalProductQuantity }}
-                                                </td>
-                                                <td class="px-6 py-3">RM{{
-                                                        parseFloat(order.total_price).toFixed(2)
-                                                    }}
-                                                </td>
-                                            </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
+                                <div class="relative overflow-x-auto sm:rounded-lg mt-4">
+                                    <table
+                                        class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
+                                        <thead
+                                            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">
+                                                Product
+                                            </th>
+                                            <th scope="col" class="px-6 py-3">
+                                                Quantity
+                                            </th>
+                                            <th scope="col" class="px-6 py-3">
+                                                Price
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr class="bg-white border-b"
+                                            v-for="(detail, index) in order.details" :key="index">
+                                            <th scope="row"
+                                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <p class="font-semibold">{{ detail.product.name }}</p>
+                                            </th>
+                                            <td class="px-6 py-4">
+                                                {{ detail.quantity }}
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                RM{{ parseFloat(detail.price).toFixed(2) }}
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                        <tfoot>
+                                        <tr class="bg-gray-100">
+                                            <td class="px-6 py-3">Total</td>
+                                            <td class="px-6 py-3">
+                                                {{ totalProductQuantity }}
+                                            </td>
+                                            <td class="px-6 py-3">RM{{
+                                                    parseFloat(order.total_price).toFixed(2)
+                                                }}
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
                         </div>

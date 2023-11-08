@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\DeliveryMethod;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -33,9 +34,13 @@ class OrderController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): \Inertia\Response
     {
-        //
+        $all_products = Product::where('status', 'active')->get();
+
+        return Inertia::render('Order/Create', [
+            'products' => $all_products
+        ]);
     }
 
     /**

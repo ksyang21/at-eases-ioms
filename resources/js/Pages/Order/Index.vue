@@ -99,11 +99,11 @@ function filterByDeliveryMethod(methodID) {
                                     class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2 w-full md:w-auto mt-2 md:mt-0 md:ml-2">
                                 Export
                             </button>
-                            <button type="button"
+                            <Link :href="route('order.create')"
                                     class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2 w-full md:w-auto mt-2 md:mt-0 md:ml-2 md:flex md:items-center">
                                 <font-awesome-icon icon="plus-circle" class="mr-2"/>
                                 New Order
-                            </button>
+                            </Link>
                         </div>
                         <div class="md:flex md:items-center">
                             <div id="search-bar" class="w-full">
@@ -196,7 +196,7 @@ function filterByDeliveryMethod(methodID) {
                                         <div class="flex items-center">
                                             <Link :href="route('order.show', order.id)"
                                                 class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1">
-                                                View Details
+                                                Details
                                             </Link>
                                             <font-awesome-icon icon="check-circle"
                                                                class="ml-3 text-green-500 hover:text-green-900 order-action-btn"

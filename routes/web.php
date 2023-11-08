@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/order/{order_id}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('/add-order', [OrderController::class, 'create'])->name('order.create');
 });
 
 Route::get('/inventory', function () {
