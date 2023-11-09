@@ -1,6 +1,6 @@
 <script setup>
 
-import {Head, Link, router} from "@inertiajs/vue3";
+import {Head, Link} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import {inject, reactive, ref} from "vue";
@@ -10,11 +10,21 @@ const Swal = inject('$swal')
 
 const props = defineProps({
     products: Object,
+    customers: Object
 })
 
 let cart = reactive({
+    customer_id: 0,
     products: []
 })
+
+let customer = {}
+
+function getCustomerDetails() {
+    customer = props.customers.find((c) => {
+        return c.id === cart.customer_id
+    })
+}
 
 let totalPrice = ref(0.00)
 
@@ -60,41 +70,74 @@ function addToCart() {
             icon: 'error'
         })
     } else {
-        cart.products.push({
-            product_id: productID.value,
-            quantity: quantity.value
-        })
-
-        let totalPriceForAddedProduct = 0;
-        for (let item of selectedProduct.value.packages) {
-            if (quantity.value >= item.details.quantity) {
-                // Use the entire package
-                totalPriceForAddedProduct += parseFloat(item.details.price) * item.details.quantity;
-                quantity.value -= item.details.quantity;
-            } else if (quantity.value > 0) {
-                // Use part of the package
-                totalPriceForAddedProduct += parseFloat(item.details.price) * quantity.value;
-                quantity.value = 0;
-            }
-
-            if (quantity.value === 0) {
-                break; // We've used up the desired quantity
+        /**
+         * Check if current cart has this item. If exists sum up the total quantity
+         */
+        let itemIsFound = false
+        for (let item of cart.products) {
+            if (item.product_id === productID.value) {
+                itemIsFound = true
+                item.quantity += quantity.value
+                break;
             }
         }
+        if (!itemIsFound) {
+            cart.products.push({
+                product_id: productID.value,
+                name: selectedProduct.value.name,
+                quantity: quantity.value,
+            })
+        }
 
-        // Update the total price
-        totalPrice.value += totalPriceForAddedProduct;
+        // Calculate total price for each product, and get overall total price
+        totalPrice.value = 0.00
+        for (let item of cart.products) {
+            let product = props.products.find((p) => {
+                return p.id === item.product_id
+            })
+            item.total_price = calculateProductPrice(item.quantity, product)
+
+            totalPrice.value += item.total_price
+        }
     }
+}
+
+function calculateProductPrice(quantity, product) {
+    let sortedPackages = [...product.packages];
+
+    let remainingQuantity = quantity;
+    let price = 0;
+
+    // Sort packages in descending order of quantity
+    sortedPackages.sort((a, b) => b.quantity - a.quantity)
+
+    for (const pack of sortedPackages) {
+        const numberOfPackages = Math.floor(remainingQuantity / pack.quantity)
+
+        if (numberOfPackages > 0) {
+            price += numberOfPackages * parseFloat(pack.price)
+            remainingQuantity -= numberOfPackages * pack.quantity
+        }
+
+        if (remainingQuantity === 0) {
+            break
+        }
+    }
+
+    // If there is remaining quantity, use the original price of the item
+    if (remainingQuantity > 0) {
+        price += remainingQuantity * parseFloat(product.price)
+    }
+
+    return price
 }
 </script>
 
 <template>
 
     <Head title="Products"/>
-
     <AuthenticatedLayout>
         <Breadcrumb></Breadcrumb>
-
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -102,27 +145,52 @@ function addToCart() {
                         <p class="text-2xl">Create New Order</p>
                         <div class="flex flex-col ml-auto">
                             <div class="flex items-center">
-                                <font-awesome-icon icon="cart-shopping" class="mr-2"></font-awesome-icon>
+                                <font-awesome-icon icon="cart-shopping" class="mr-2 text-red-700"></font-awesome-icon>
                                 {{ cart.products.length }} items
                             </div>
                             <div class="flex items-center">
-                                <font-awesome-icon icon="sack-dollar" class="mr-2"></font-awesome-icon>
+                                <font-awesome-icon icon="sack-dollar" class="mr-2 text-blue-700"></font-awesome-icon>
                                 RM {{ totalPrice.toFixed(2) }}
                             </div>
                         </div>
                     </div>
-                    {{selectedProduct.packages}}
                     <form @submit.prevent="submitForm">
                         <div class="grid gap-6 md:grid-cols-2 border-b-2 border-gray-100">
                             <div class="p-6 mx-2">
-                                <div id="select-products-section">
+                                <div id="select-customer-section">
+                                    <label for="customers"
+                                           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                                        customer</label>
+                                    <select id="customers" @change="getCustomerDetails"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            v-model="cart.customer_id">
+                                        <option :value="customer.id" v-for="(customer, index) in customers"
+                                                :key="index">
+                                            {{ customer.name }}
+                                        </option>
+                                    </select>
+                                    <div v-if="cart.customer_id > 0" class="text-sm">
+                                        <p class="text-red-600">
+                                            <font-awesome-icon icon="location-dot" class="mr-2"/>
+                                            <span class="text-gray-600">{{ customer.address }}</span>
+                                        </p>
+                                        <p class="text-red-600">
+                                            <font-awesome-icon icon="location-dot" class="mr-2"/>
+                                            Customer Details
+                                        </p>
+                                        <div class="ml-[24px]">
+                                            <p>{{ customer.phone }}</p>
+                                            <p class="text-gray-500"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="select-products-section" class="mt-6">
                                     <label for="products"
                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a
                                         product</label>
                                     <select id="products" @change="getProductPackage"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             v-model="productID">
-                                        <option selected>Choose a product</option>
                                         <option :value="product.id" v-for="(product, index) in products"
                                                 :key="index">
                                             {{ product.name }}
@@ -138,7 +206,7 @@ function addToCart() {
                                 </div>
                             </div>
                             <div class="p-6 mx-2">
-                                <div class="relative overflow-x-auto sm:rounded-lg mt-4">
+                                <div class="relative overflow-x-auto sm:rounded-lg">
                                     <table class="w-full text-sm text-left text-gray-500 border-2 border-gray-200">
                                         <thead
                                             class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -157,9 +225,9 @@ function addToCart() {
                                         <tbody v-if="productID > 0">
                                         <tr v-for="(item, index) in selectedProduct.packages" :key="index"
                                             v-if="selectedProduct.packages.length > 0">
-                                            <td class="px-6 py-4">{{ item.package.name }}</td>
-                                            <td class="px-6 py-4">{{ item.details.quantity }}</td>
-                                            <td class="px-6 py-4">RM{{ item.details.price }}</td>
+                                            <td class="px-6 py-4">{{ item.name }}</td>
+                                            <td class="px-6 py-4 text-center">{{ item.quantity }}</td>
+                                            <td class="px-6 py-4">RM {{ item.price }}</td>
                                         </tr>
                                         <tr v-else class="text-center">
                                             <td class="px-6 py-4" colspan="3">No package available</td>

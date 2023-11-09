@@ -60,6 +60,8 @@ class DatabaseSeeder extends Seeder
                 'name'      => 'Customer ' . $i,
                 'address'   => fake()->address,
                 'seller_id' => $i,
+                'phone' => fake()->phoneNumber(),
+                'email' => fake()->email()
             ]);
         }
 

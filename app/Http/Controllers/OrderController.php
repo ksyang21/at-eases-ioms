@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Package;
-use App\Models\PackageProduct;
-use App\Models\Product;
-use App\Models\DeliveryMethod;
-use App\Models\Order;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Order;
+use App\Models\Package;
+use App\Models\Product;
+use App\Models\Customer;
+use Illuminate\Http\Request;
+use App\Models\DeliveryMethod;
+use App\Models\PackageProduct;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -18,18 +20,16 @@ class OrderController extends Controller
     public function index()
     {
         $delivery_methods = DeliveryMethod::all();
-
         $orders = Order::all();
-        foreach($orders as &$order) {
-            $order['seller'] = $order->seller;
-            $order['customer'] = $order->customer;
-            $order['details'] = $order->details;
+        foreach ($orders as &$order) {
+            $order['seller']          = $order->seller;
+            $order['customer']        = $order->customer;
+            $order['details']         = $order->details;
             $order['delivery_method'] = $order->deliveryMethod;
         }
-
         return Inertia::render('Order/Index', [
             'delivery_methods' => $delivery_methods,
-            'orders' => $orders
+            'orders'           => $orders,
         ]);
     }
 
@@ -38,24 +38,28 @@ class OrderController extends Controller
      */
     public function create(): \Inertia\Response
     {
+        // Get current user customer
+        $customers = Customer::where('seller_id', Auth::id())->get();
         $all_products = Product::where('status', 'active')->get();
-        foreach($all_products as &$product) {
+        foreach ($all_products as &$product) {
             $get_packages = PackageProduct::where('product_id', $product->id)->get();
-            $packages = [];
+            $packages     = [];
             foreach ($get_packages as $get_package) {
-                $package_id = $get_package->package_id;
-                $package    = Package::where('id', $package_id)->first();
-                $details    = PackageProduct::where('package_id', $package_id)->first();
-                $packages[] = [
-                    'package' => $package,
-                    'details' => $details,
-                ];
+                $package_id          = $get_package->package_id;
+                $package             = Package::where('id', $package_id)->first();
+                $details             = PackageProduct::select('quantity', 'price')->where('package_id', $package_id)->first();
+                $package['quantity'] = $details['quantity'];
+                $package['price']    = $details['price'];
+                $packages[]          = $package;
+//                    'package' => $package,
+//                    'details' => $details,
+//                ];
             }
             $product['packages'] = $packages;
         }
-
         return Inertia::render('Order/Create', [
-            'products' => $all_products
+            'products' => $all_products,
+            'customers' => $customers
         ]);
     }
 
@@ -72,19 +76,19 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        $order = Order::find($id);
+        $order            = Order::find($id);
         $order['details'] = $order->details;
-        foreach($order['details'] as &$detail) {
+        foreach ($order['details'] as &$detail) {
             $detail['product'] = $detail->product;
         }
-        $customer = $order->customer;
-        $seller = $order->seller;
+        $customer        = $order->customer;
+        $seller          = $order->seller;
         $delivery_method = $order->deliveryMethod;
         return Inertia::render('Order/Details', [
-            'order' => $order,
-            'seller' => $seller,
-            'customer' => $customer,
-            'delivery_method' => $delivery_method
+            'order'           => $order,
+            'seller'          => $seller,
+            'customer'        => $customer,
+            'delivery_method' => $delivery_method,
         ]);
     }
 

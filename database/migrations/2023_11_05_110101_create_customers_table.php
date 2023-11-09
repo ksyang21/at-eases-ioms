@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('seller_id')->comment('Belongs to which seller (dealer / staff)');
             $table->foreign('seller_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->text('address');
             $table->string('name');
+            $table->text('address');
+            $table->string('phone');
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }
