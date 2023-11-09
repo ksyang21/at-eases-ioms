@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Package;
+use App\Models\PackageProduct;
 use App\Models\Product;
 use App\Models\DeliveryMethod;
 use App\Models\Order;
@@ -37,6 +39,20 @@ class OrderController extends Controller
     public function create(): \Inertia\Response
     {
         $all_products = Product::where('status', 'active')->get();
+        foreach($all_products as &$product) {
+            $get_packages = PackageProduct::where('product_id', $product->id)->get();
+            $packages = [];
+            foreach ($get_packages as $get_package) {
+                $package_id = $get_package->package_id;
+                $package    = Package::where('id', $package_id)->first();
+                $details    = PackageProduct::where('package_id', $package_id)->first();
+                $packages[] = [
+                    'package' => $package,
+                    'details' => $details,
+                ];
+            }
+            $product['packages'] = $packages;
+        }
 
         return Inertia::render('Order/Create', [
             'products' => $all_products
