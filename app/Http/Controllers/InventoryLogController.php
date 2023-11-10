@@ -48,7 +48,8 @@ class InventoryLogController extends Controller
                 'required',
                 Rule::in(['stock in', 'stock out']),
             ],
-            'quantity' => 'required|numeric|min:0'
+            'quantity' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:255'
         ]);
         if ($validator->fails()) {
             return Inertia::render('InventoryLog/Create', [
@@ -60,7 +61,8 @@ class InventoryLogController extends Controller
         $inventory_logs = InventoryLog::create([
             'product_id' => $product_id,
             'stock_status' => $data['stock_status'],
-            'quantity' => $data['quantity']
+            'quantity' => $data['quantity'],
+            'description' => $data['description']
         ]);
 
         // Update product quantity
