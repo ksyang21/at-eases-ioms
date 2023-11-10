@@ -237,7 +237,6 @@ function rejectOrder(order) {
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <p class="font-semibold"># {{ order.order_no }}</p>
-                                        <p class="px-2 bg-blue-200 rounded-md text-sm">{{ order.delivery_no }}</p>
                                     </th>
                                     <td scope="row" class="px-6 py-4 font-semibold text-xs">
                                         <p v-if="order.status === 'approved'" class="text-green-600">
@@ -269,7 +268,10 @@ function rejectOrder(order) {
                                         <p>{{ order.customer.name }}</p>
                                         <p>{{ order.customer.address }}</p>
                                     </td>
-                                    <td class="px-6 py-4">{{ order.delivery_method !== null ? order.delivery_method.delivery_method : '-'}}</td>
+                                    <td class="px-6 py-4">
+                                        <p>{{ order.delivery_method !== null ? order.delivery_method.delivery_method : '-' }}</p>
+                                        <span class="px-2 bg-blue-200 rounded-md text-sm text-black" v-if="order.delivery_method !== null">#{{ order.delivery_no }}</span>
+                                    </td>
                                     <td class="px-6 py-4">
                                         <p class="font-semibold">RM{{ parseFloat(order.total_price).toFixed(2) }}</p>
                                         <p>
