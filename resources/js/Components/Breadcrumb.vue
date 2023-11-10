@@ -1,6 +1,11 @@
 <script setup>
 import {Link} from "@inertiajs/vue3";
 
+const props = defineProps({
+    breadcrumbs: Object
+})
+
+console.log(props.breadcrumbs)
 const items = [
     {
         label: 'Home',

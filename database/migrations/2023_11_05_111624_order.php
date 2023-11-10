@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_no');
-            $table->enum('status', ['pending', 'in transit', 'completed', 'return', 'rejected']);
+            $table->enum('status', ['pending', 'in transit', 'completed', 'return', 'rejected', 'approved']);
             $table->unsignedBigInteger('seller_id');
             $table->foreign('seller_id')->references('id')->on('users')->cascadeOnDelete();
             $table->unsignedBigInteger('customer_id');

@@ -4,14 +4,16 @@ import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {reactive, ref} from "vue";
+import {inject, reactive, ref} from "vue";
 import {FwbDropdown, FwbListGroup, FwbListGroupItem} from "flowbite-vue";
 
 const props = defineProps({
     orders: Object,
-    delivery_methods: Object
+    delivery_methods: Object,
+    breadcrumbs : Object
 })
 
+const Swal = inject('$swal')
 
 let orders = ref(props.orders)
 let status = ref('all')
@@ -49,6 +51,66 @@ function filterByDeliveryMethod(methodID) {
         return parseInt(order.delivery_method_id) === parseInt(methodID)
     })
 }
+
+function approveOrder(order) {
+    Swal.fire({
+        text: `Approve Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+
+        }
+    })
+}
+
+function cancelOrder(order) {
+    Swal.fire({
+        text: `Cancel Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+
+        }
+    })
+}
+
+function inTransitOrder(order) {
+    Swal.fire({
+        text: `Update Order ${order.order_no} to 'In Transit'?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+
+        }
+    })
+}
+
+function returnOrder(order) {
+    Swal.fire({
+        text: `Return Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+
+        }
+    })
+}
+
+function completeOrder(order) {
+    Swal.fire({
+        text: `Complete Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+
+        }
+    })
+}
 </script>
 
 <template>
@@ -56,7 +118,7 @@ function filterByDeliveryMethod(methodID) {
     <Head title="Orders"/>
 
     <AuthenticatedLayout>
-        <Breadcrumb></Breadcrumb>
+        <Breadcrumb :breadcrumbs="breadcrumbs"></Breadcrumb>
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -161,21 +223,21 @@ function filterByDeliveryMethod(methodID) {
                                         <p class="font-semibold"># {{ order.order_no }}</p>
                                         <p class="px-2 bg-blue-200 rounded-md text-sm">{{ order.delivery_no }}</p>
                                     </th>
-                                    <td scope="row" class="px-6 py-4 font-semibold">
+                                    <td scope="row" class="px-6 py-4 font-semibold text-xs">
                                         <p v-if="order.status === 'completed'" class="text-green-700">
-                                            • {{ order.status.toUpperCase() }}
+                                            •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'pending'" class="text-blue-700">
-                                            • {{ order.status.toUpperCase() }}
+                                            •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'in transit'" class="text-yellow-400">
-                                            • {{ order.status.toUpperCase() }}
+                                            •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'return'" class="text-red-700">
-                                            • {{ order.status.toUpperCase() }}
+                                            •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'cancelled'" class="text-gray-700">
-                                            • {{ order.status.toUpperCase() }}
+                                            •{{ order.status.toUpperCase() }}
                                         </p>
                                     </td>
                                     <td scope="row" class="px-6 py-4">
@@ -199,16 +261,20 @@ function filterByDeliveryMethod(methodID) {
                                                   class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1">
                                                 Details
                                             </Link>
-                                            <font-awesome-icon icon="check-circle"
+                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'in transit'" @click="completeOrder(order)"
                                                                class="ml-3 text-green-500 hover:text-green-900 order-action-btn"
                                                                title="Complete"/>
-                                            <font-awesome-icon icon="truck"
+                                            <font-awesome-icon icon="truck" v-if="order.status === 'approved'" @click="inTransitOrder(order)"
                                                                class="ml-3 text-blue-500 hover:text-blue-900 order-action-btn"
                                                                title="In Transit"/>
-                                            <font-awesome-icon icon="rotate-left"
+                                            <font-awesome-icon icon="rotate-left" v-if="order.status === 'completed' || order.status === 'in transit'"
+                                                               @click="returnOrder(order)"
                                                                class="ml-3 text-gray-600 hover:text-gray-900 order-action-btn"
                                                                title="Return"/>
-                                            <font-awesome-icon icon="times"
+                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'pending'" @click="approveOrder(order)"
+                                                               class="ml-3 text-green-600 hover:text-green-900 order-action-btn"
+                                                               title="Approve"/>
+                                            <font-awesome-icon icon="times" @click="cancelOrder(order)"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
                                                                title="Cancel"/>
                                         </div>

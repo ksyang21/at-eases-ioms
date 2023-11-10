@@ -22,6 +22,12 @@ class OrderController extends Controller
      */
     public function index()
     {
+        $breadcrumbs = [
+            [
+                'label' => 'All Order',
+                'link' => 'orders'
+            ]
+        ];
         $delivery_methods = DeliveryMethod::all();
         $orders           = Order::all();
         foreach ($orders as &$order) {
@@ -37,6 +43,7 @@ class OrderController extends Controller
         return Inertia::render('Order/Index', [
             'delivery_methods' => $delivery_methods,
             'orders'           => $orders,
+            'breadcrumbs' => $breadcrumbs
         ]);
     }
 
