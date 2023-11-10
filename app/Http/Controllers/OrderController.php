@@ -22,28 +22,28 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $breadcrumbs = [
+        $breadcrumbs      = [
             [
                 'label' => 'All Order',
-                'link' => 'orders'
-            ]
+                'link'  => 'orders',
+            ],
         ];
         $delivery_methods = DeliveryMethod::all();
         $orders           = Order::all();
         foreach ($orders as &$order) {
-            $order['seller']          = $order->seller;
-            $order['customer']        = $order->customer;
-            $order['details']         = $order->details;
-            if($order->delivery_method_id !== null) {
+            $order['seller']   = $order->seller;
+            $order['customer'] = $order->customer;
+            $order['details']  = $order->details;
+            if ($order->delivery_method_id !== NULL) {
                 $order['delivery_method'] = $order->deliveryMethod;
             } else {
-                $order['delivery_method'] = null;
+                $order['delivery_method'] = NULL;
             }
         }
         return Inertia::render('Order/Index', [
             'delivery_methods' => $delivery_methods,
             'orders'           => $orders,
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs'      => $breadcrumbs,
         ]);
     }
 
@@ -65,9 +65,6 @@ class OrderController extends Controller
                 $package['quantity'] = $details['quantity'];
                 $package['price']    = $details['price'];
                 $packages[]          = $package;
-//                    'package' => $package,
-//                    'details' => $details,
-//                ];
             }
             $product['packages'] = $packages;
         }
@@ -95,9 +92,9 @@ class OrderController extends Controller
         }
 
         $order = Order::create([
-            'order_no' => sprintf('OD%d', 1000 + $new_order_id),
-            'status' => 'pending',
-            'seller_id' => $seller_id,
+            'order_no'    => sprintf('OD%d', 1000 + $new_order_id),
+            'status'      => 'pending',
+            'seller_id'   => $seller_id,
             'customer_id' => $customer_id,
         ]);
 
@@ -139,10 +136,10 @@ class OrderController extends Controller
                 ]);
 
                 InventoryLog::create([
-                    'product_id' => $product['product_id'],
-                    'quantity' => $product['quantity'],
+                    'product_id'   => $product['product_id'],
+                    'quantity'     => $product['quantity'],
                     'stock_status' => 'stock out',
-                    'description' => sprintf('#OD%d', 1000 + $new_order_id),
+                    'description'  => sprintf('#OD%d', 1000 + $new_order_id),
                 ]);
 
                 $product_item->stock_quantity = $product_item->stock_quantity - $product['quantity'];
@@ -199,5 +196,45 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         //
+    }
+
+    public function approveOrder(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $order->status = 'approved';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s approved!', $order->order_no));
+    }
+
+    public function cancelOrder(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $order->status = 'cancelled';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
+    }
+
+    public function rejectOrder(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $order->status = 'rejected';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s rejected', $order->order_no));
+    }
+
+    public function inTransitOrder(Request $request, Order $order)
+    {
+        $order->status = 'in transit';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
+    }
+
+    public function completeOrder(Order $order) {
+        $order->status= 'completed';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
+    }
+
+    public function returnOrder(Order $order) {
+        $order->status= 'return';
+        $order->update();
+        return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
     }
 }

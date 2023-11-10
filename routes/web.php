@@ -72,6 +72,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/{order_id}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/add-order', [OrderController::class, 'create'])->name('order.create');
     Route::post('/order', [OrderController::class, 'store'])->name('order.store');
+    Route::put('/approve-order/{order}', [OrderController::class, 'approveOrder'])->name('order.approve');
+    Route::put('/cancel-order/{order}', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+    Route::put('/reject-order/{order}', [OrderController::class, 'rejectOrder'])->name('order.reject');
+    Route::put('/complete-order/{order}', [OrderController::class, 'completeOrder'])->name('order.complete');
+    Route::put('/return-order/{order}', [OrderController::class, 'returnOrder'])->name('order.return');
+    Route::put('/in-transit-order/{order}', [OrderController::class, 'inTransitOrder'])->name('order.inTransit');
 });
 
 Route::get('/inventory', function () {

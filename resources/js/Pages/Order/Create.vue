@@ -170,7 +170,7 @@ function confirmOrder() {
     } else {
         Swal.fire({
             title: 'Confirm Order?',
-            html: `Total : RM ${totalPrice.value}`,
+            html: `Total : RM ${totalPrice.value.toFixed(2)}`,
             icon: 'info',
             showCancelButton: true
         }).then((result) => {

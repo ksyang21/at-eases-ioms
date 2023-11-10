@@ -1,6 +1,6 @@
 <script setup>
 
-import {Head, Link} from "@inertiajs/vue3";
+import {Head, Link, router} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -35,7 +35,7 @@ function changeStatus(selectedStatus) {
 function searchOrder() {
     if (search.value !== '') {
         orders.value = props.orders.filter((order) => {
-            return order.order_no.toString().includes(search.value)
+            return order.order_no.toString().toLowerCase().includes(search.value)
         })
     } else {
         if (status.value !== 'all') {
@@ -59,7 +59,7 @@ function approveOrder(order) {
         showCancelButton: true
     }).then((result) => {
         if(result.isConfirmed) {
-
+            router.put(`/approve-order/${order.id}`)
         }
     })
 }
@@ -71,7 +71,7 @@ function cancelOrder(order) {
         showCancelButton: true
     }).then((result) => {
         if(result.isConfirmed) {
-
+            router.put(`/cancel-order/${order.id}`)
         }
     })
 }
@@ -83,7 +83,7 @@ function inTransitOrder(order) {
         showCancelButton: true
     }).then((result) => {
         if(result.isConfirmed) {
-
+            router.put(`/in-transit-order/${order.id}`)
         }
     })
 }
@@ -95,7 +95,7 @@ function returnOrder(order) {
         showCancelButton: true
     }).then((result) => {
         if(result.isConfirmed) {
-
+            router.put(`/return-order/${order.id}`)
         }
     })
 }
@@ -107,7 +107,19 @@ function completeOrder(order) {
         showCancelButton: true
     }).then((result) => {
         if(result.isConfirmed) {
+            router.put(`/complete-order/${order.id}`)
+        }
+    })
+}
 
+function rejectOrder(order) {
+    Swal.fire({
+        text: `Reject Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if(result.isConfirmed) {
+            router.put(`/reject-order/${order.id}`)
         }
     })
 }
@@ -126,16 +138,20 @@ function completeOrder(order) {
                         <div class="flex items-center" id="status-bar">
                             <p class="status-item" :class="status === 'all' ? 'active-status' : ''"
                                @click="changeStatus('all')">All</p>
-                            <p class="status-item" :class="status === 'completed' ? 'active-status' : ''"
-                               @click="changeStatus('completed')">Completed</p>
                             <p class="status-item" :class="status === 'pending' ? 'active-status' : ''"
                                @click="changeStatus('pending')">Pending</p>
+                            <p class="status-item" :class="status === 'approved' ? 'active-status' : ''"
+                               @click="changeStatus('approved')">Approved</p>
                             <p class="status-item" :class="status === 'in transit' ? 'active-status' : ''"
                                @click="changeStatus('in transit')">In Transit</p>
+                            <p class="status-item" :class="status === 'completed' ? 'active-status' : ''"
+                               @click="changeStatus('completed')">Completed</p>
                             <p class="status-item" :class="status === 'return' ? 'active-status' : ''"
                                @click="changeStatus('return')">Return</p>
                             <p class="status-item" :class="status === 'cancelled' ? 'active-status' : ''"
                                @click="changeStatus('cancelled')">Cancelled</p>
+                            <p class="status-item" :class="status === 'rejected' ? 'active-status' : ''"
+                               @click="changeStatus('rejected')">Rejected</p>
                         </div>
                     </div>
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
@@ -224,6 +240,9 @@ function completeOrder(order) {
                                         <p class="px-2 bg-blue-200 rounded-md text-sm">{{ order.delivery_no }}</p>
                                     </th>
                                     <td scope="row" class="px-6 py-4 font-semibold text-xs">
+                                        <p v-if="order.status === 'approved'" class="text-green-600">
+                                            •{{ order.status.toUpperCase() }}
+                                        </p>
                                         <p v-if="order.status === 'completed'" class="text-green-700">
                                             •{{ order.status.toUpperCase() }}
                                         </p>
@@ -237,6 +256,9 @@ function completeOrder(order) {
                                             •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'cancelled'" class="text-gray-700">
+                                            •{{ order.status.toUpperCase() }}
+                                        </p>
+                                        <p v-if="order.status === 'rejected'" class="text-red-700">
                                             •{{ order.status.toUpperCase() }}
                                         </p>
                                     </td>
@@ -274,9 +296,12 @@ function completeOrder(order) {
                                             <font-awesome-icon icon="check-circle" v-if="order.status === 'pending'" @click="approveOrder(order)"
                                                                class="ml-3 text-green-600 hover:text-green-900 order-action-btn"
                                                                title="Approve"/>
-                                            <font-awesome-icon icon="times" @click="cancelOrder(order)"
+                                            <font-awesome-icon icon="times" @click="cancelOrder(order)" v-if="order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
                                                                title="Cancel"/>
+                                            <font-awesome-icon icon="ban" v-if="order.status === 'pending'" @click="rejectOrder(order)"
+                                                               class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
+                                                               title="Rejected"/>
                                         </div>
                                     </td>
                                 </tr>
