@@ -28,7 +28,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
             <li class="nav-item">
                 <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="sitemap" class="mx-1"/>
-                    Members
+                    Customers
                 </Link>
             </li>
         </ul>

@@ -3,7 +3,7 @@
 import {Head, Link, router} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import {inject, reactive, ref, watch} from "vue";
+import {inject, reactive, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const Swal = inject('$swal')
@@ -90,16 +90,20 @@ function addToCart() {
             }
         }
 
-        // Calculate total price for each product, and get overall total price
-        totalPrice.value = 0.00
-        for (let item of cart.products) {
-            let product = props.products.find((p) => {
-                return p.id === item.product_id
-            })
-            item.total_price = calculateProductPrice(item.quantity, product)
+        calculateTotalPrice()
+    }
+}
 
-            totalPrice.value += item.total_price
-        }
+function calculateTotalPrice() {
+    // Calculate total price for each product, and get overall total price
+    totalPrice.value = 0.00
+    for (let item of cart.products) {
+        let product = props.products.find((p) => {
+            return p.id === item.product_id
+        })
+        item.total_price = calculateProductPrice(item.quantity, product)
+
+        totalPrice.value += item.total_price
     }
 }
 
@@ -148,29 +152,9 @@ function confirmOrder() {
             icon: 'error'
         })
     } else {
-        let table =
-            ` <table class="w-full text-sm text-left text-gray-500 border-2 border-gray-200">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3">Product</th>
-                        <th class="px-6 py-3">Quantity</th>
-                        <th class="px-6 py-3">Price</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-        for (let product of cart.products) {
-            table +=
-                `<tr>
-                    <td class="px-6 py-4">${product.name}</td>
-                    <td class="px-6 py-4 text-center">${product.quantity}</td>
-                    <td class="px-6 py-4">RM ${product.total_price.toFixed(2)}</td>
-                </tr>`
-        }
-        table += '</tbody></table>'
-
         Swal.fire({
             title: 'Confirm Order?',
-            html: table,
+            html: `Total : RM ${totalPrice.value}`,
             icon: 'info',
             showCancelButton: true
         }).then((result) => {
@@ -197,6 +181,44 @@ function closeModal() {
 function showImage() {
     return '/storage/'
 }
+
+function reduceQuantity(product) {
+    let tmpQuantity = product.quantity - 1
+    if (tmpQuantity > 0) {
+        product.quantity -= 1
+        product.total_price = calculateProductPrice(product.quantity, product.product)
+        calculateTotalPrice()
+    } else {
+        removeProduct(product)
+    }
+}
+
+function addQuantity(product) {
+    product.quantity += 1
+    product.total_price = calculateProductPrice(product.quantity, product.product)
+    calculateTotalPrice()
+}
+
+function updateCart(cartProduct, quantity, product) {
+    cartProduct.total_price = calculateProductPrice(quantity, product)
+    calculateTotalPrice()
+}
+
+function removeProduct(product) {
+    Swal.fire({
+        text: `Remove ${product.name} ?`,
+        icon: 'warning',
+        showCancelButton: true,
+    }).then((result) => {
+        if(result.isConfirmed) {
+            const index = cart.products.indexOf(product)
+            if (index !== -1) {
+                cart.products.splice(index, 1)
+            }
+            calculateTotalPrice()
+        }
+    })
+}
 </script>
 
 <template>
@@ -209,14 +231,8 @@ function showImage() {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
                         <p class="text-2xl">Create New Order</p>
-                        <p class="text-2xl ml-auto hidden md:flex" @click="showCart">
-                            <span class="fa-stack" style="width: 1.8em !important;">
-                                <font-awesome-icon icon="cart-shopping" class="mr-2 text-blue-700"></font-awesome-icon>
-                                <span class="fa-stack" style="left:1.1em;top:-0.8em;">
-                                    <strong class="fa-stack-1x text-gray-600">{{ cart.products.length }}</strong>
-                                </span>
-                            </span>
-                            RM {{ totalPrice.toFixed(2) }}
+                        <p class="text-2xl ml-auto hidden md:flex">
+                            Total : RM {{ totalPrice.toFixed(2) }}
                         </p>
                     </div>
                     <div class="grid gap-6 md:grid-cols-2 border-b-2 border-gray-100">
@@ -342,14 +358,9 @@ function showImage() {
                                 <font-awesome-icon icon="angle-left" class="mr-1"/>
                                 Back to Order Listing
                             </Link>
-                            <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id > 0"
-                                    class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
-                                <font-awesome-icon icon="check-circle" class="mr-2"/>
-                                Create Order
-                            </button>
-                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
                                     @click="openModal">
-                                View Cart
+                                View Cart <span class="ml-2 px-1.5 bg-white rounded-sm text-black">{{cart.products.length}}</span>
                             </button>
                         </div>
                     </div>
@@ -358,7 +369,7 @@ function showImage() {
         </div>
         <!--Cart Modal container-->
         <div v-if="isCartModalOpen" class="fixed inset-0 bg-gray-800 bg-opacity-50"></div>
-        <div id="cartModal" class="w-full md:w-1/3 hidden fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
+        <div id="cartModal" class="w-full md:w-1/2 hidden fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
             <div class="top-0 p-6 border-b-2 border-gray-100 flex items-center">
                 <p class="text-2xl">Cart</p>
                 <button class="text-red-600 ml-auto" @click="closeModal">
@@ -369,7 +380,7 @@ function showImage() {
                 <div v-if="cart.products.length === 0" class="py-6 text-2xl flex justify-center">
                     <img src="/storage/system/empty-cart.png" alt="Cart is Empty.">
                 </div>
-                <div v-else class="py-6">
+                <div v-else class="pb-6">
                     <div class="py-6 flex items-center border-b-2 border-gray-100"
                          v-for="(product, index) in cart.products" :key="index">
                         <img
@@ -377,14 +388,32 @@ function showImage() {
                             alt="product" class="max-h-[120px] max-w-[120px]">
                         <div class="flex flex-col ml-6">
                             <p class="text-xl font-semibold">{{ product.name }}</p>
-                            <p>Quantity : {{ product.quantity }}</p>
                         </div>
-                        <div class="ml-auto">
+                        <span class="input-wrapper mt-2 ml-auto">
+                              <button @click="reduceQuantity(product)" v-if="product.quantity > 0">-</button>
+                              <input type="number" v-model="product.quantity" class="border-2 border-gray-300"
+                                     @change="updateCart(product, product.quantity, product.product)" min="0"
+                                     :max="product.quantity"/>
+                              <button @click="addQuantity(product)"
+                                      v-if="product.quantity < product.product.stock_quantity">+</button>
+                            </span>
+                        <div class="ml-auto flex items-center">
                             <p class="text-2xl">RM {{ product.total_price.toFixed(2) }}</p>
+                            <p class="ml-4 text-red-600 hover:text-red-900 cursor-pointer" @click="removeProduct(product)">
+                                <font-awesome-icon icon="trash" />
+                            </p>
                         </div>
                     </div>
-                    <div class="py-6">
-                        <p class="text-2xl mb-4">Total Items : {{ cart.products.length }}</p>
+                    <div class="py-6 flex flex-col items-end">
+                        <p class="text-xl mb-2">Total Items : {{ cart.products.length }}</p>
+                        <p class="text-xl mb-4">Total Price : RM {{ totalPrice.toFixed(2) }}</p>
+                    </div>
+                    <div class="bottom-0 fixed py-6 shadow-md">
+                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id > 0"
+                                class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
+                            <font-awesome-icon icon="check-circle" class="mr-2"/>
+                            Create Order
+                        </button>
                     </div>
                 </div>
             </div>
@@ -393,5 +422,42 @@ function showImage() {
 </template>
 
 <style scoped>
+.input-wrapper {
+    width: 100px;
+    height: 30px;
+    display: flex;
+}
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    padding: 10px;
+    text-align: center;
+}
+
+.input-wrapper * {
+//border: none; width: 50px; flex: 1;
+}
+
+.input-wrapper button {
+    cursor: pointer;
+}
+
+.input-wrapper button:hover {
+    background-color: #e1e1e1;
+}
+
+.input-wrapper button:first-child {
+    color: red;
+}
+
+.input-wrapper button:last-child {
+    color: green;
+}
 </style>
