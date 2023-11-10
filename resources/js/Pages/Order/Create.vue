@@ -52,6 +52,13 @@ function addToCart() {
             icon: 'error'
         })
     } else {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
         /**
          * Check if current cart has this item. If exists sum up the total quantity
          */
@@ -69,6 +76,10 @@ function addToCart() {
                     })
                 } else {
                     item.quantity += quantity.value
+                    Toast.fire({
+                        icon: "success",
+                        title: "Item quantity updated!"
+                    });
                 }
                 break;
             }
@@ -81,6 +92,10 @@ function addToCart() {
                     quantity: quantity.value,
                     product: selectedProduct.value
                 })
+                Toast.fire({
+                    icon: "success",
+                    title: "Item added to cart!"
+                });
             } else {
                 Swal.fire({
                     title: `Not enough stock!`,
@@ -91,6 +106,7 @@ function addToCart() {
         }
 
         calculateTotalPrice()
+
     }
 }
 
