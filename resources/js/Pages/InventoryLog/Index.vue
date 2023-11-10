@@ -46,6 +46,9 @@ const props = defineProps({
                                     <th scope="col" class="px-6 py-3">
                                         Quantity
                                     </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Description
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody v-if="inventory_logs.length > 0">
@@ -62,10 +65,16 @@ const props = defineProps({
                                         {{ moment(log.created_at).format('YYYY-MM-DD HH:mm:ss') }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        <p v-if="log.stock_status === 'stock out'" class="text-red-700">-{{
-                                                log.quantity
-                                            }}</p>
+                                        <p v-if="log.stock_status === 'stock out'" class="text-red-700">
+                                            -{{ log.quantity }}
+                                        </p>
                                         <p v-else class="text-green-700">{{ log.quantity }}</p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p v-if="log.description !== '-' || log.description !== null">
+                                            {{ log.description }}
+                                        </p>
+                                        <p v-else>-</p>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -76,7 +85,7 @@ const props = defineProps({
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-xl text-gray-700 mt-6">Current Stock: {{product.stock_quantity}} </p>
+                        <p class="text-xl text-gray-700 mt-6">Current Stock: {{ product.stock_quantity }} </p>
                     </div>
                 </div>
             </div>

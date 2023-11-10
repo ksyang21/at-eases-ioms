@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             Customer::create([
                 'name'      => 'Customer ' . $i,
                 'address'   => fake()->address,
-                'seller_id' => $i,
+                'seller_id' => 1,
                 'phone' => fake()->phoneNumber(),
                 'email' => fake()->email()
             ]);
@@ -133,24 +133,24 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create orders
-        for ($i = 1; $i <= 10; $i++) {
-            $status        = fake()->randomElement(['pending', 'completed', 'in transit', 'return', 'cancelled']);
-            $order         = Order::create([
-                'order_no'           => sprintf('OD10%02d', $i),
-                'status'             => $status,
-                'seller_id'          => fake()->randomElement([2, 3, 4, 5, 6, 7, 8, 9, 10]),
-                'customer_id'        => fake()->randomElement([1, 2, 3, 4, 5, 6, 7, 8, 9]),
-                'delivery_method_id' => fake()->randomElement([1, 2, 3, 4]),
-                'delivery_no'        => fake()->randomElement([NULL, sprintf('TN%05d', $i)]),
-                'total_price'        => 50.00,
-            ]);
-            $order_details = OrderDetails::create([
-                'order_id'   => $i,
-                'product_id' => 1,
-                'quantity'   => 1,
-                'price'      => 50,
-            ]);
-        }
+//        for ($i = 1; $i <= 10; $i++) {
+//            $status        = fake()->randomElement(['pending', 'completed', 'in transit', 'return', 'cancelled']);
+//            $order         = Order::create([
+//                'order_no'           => sprintf('OD10%02d', $i),
+//                'status'             => $status,
+//                'seller_id'          => fake()->randomElement([2, 3, 4, 5, 6, 7, 8, 9, 10]),
+//                'customer_id'        => fake()->randomElement([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+//                'delivery_method_id' => fake()->randomElement([1, 2, 3, 4]),
+//                'delivery_no'        => fake()->randomElement([NULL, sprintf('TN%05d', $i)]),
+//                'total_price'        => 50.00,
+//            ]);
+//            $order_details = OrderDetails::create([
+//                'order_id'   => $i,
+//                'product_id' => 1,
+//                'quantity'   => 1,
+//                'price'      => 50,
+//            ]);
+//        }
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

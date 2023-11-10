@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ImageController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
@@ -72,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/order/{order_id}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/add-order', [OrderController::class, 'create'])->name('order.create');
+    Route::post('/order', [OrderController::class, 'store'])->name('order.store');
 });
 
 Route::get('/inventory', function () {

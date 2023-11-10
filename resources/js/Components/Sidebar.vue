@@ -19,7 +19,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Inventory
                 </Link>
             </li>
-            <li class="nav-item" :class="route().current('orders.index') || route().current('order.show') ? 'active-link' : ''">
+            <li class="nav-item" :class="route().current('orders.index') || route().current('order.show') || route().current('order.create') ? 'active-link' : ''">
                 <Link :href="route('orders.index')" :active="route().current('orders.index')" class="nav-link">
                     <font-awesome-icon icon="circle-dollar-to-slot" class="mx-1"/>
                     Sales Order

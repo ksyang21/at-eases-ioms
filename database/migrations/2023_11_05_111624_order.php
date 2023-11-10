@@ -13,15 +13,15 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_no');
-            $table->enum('status', ['pending', 'in transit', 'completed', 'return', 'cancelled']);
+            $table->enum('status', ['pending', 'in transit', 'completed', 'return', 'rejected']);
             $table->unsignedBigInteger('seller_id');
             $table->foreign('seller_id')->references('id')->on('users')->cascadeOnDelete();
             $table->unsignedBigInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers')->cascadeOnDelete();
-            $table->unsignedBigInteger('delivery_method_id');
+            $table->unsignedBigInteger('delivery_method_id')->nullable();
             $table->foreign('delivery_method_id')->references('id')->on('delivery_methods')->cascadeOnDelete();
             $table->text('delivery_no')->nullable();
-            $table->unsignedFloat('total_price');
+            $table->unsignedFloat('total_price')->default(0.00);
             $table->timestamps();
         });
     }

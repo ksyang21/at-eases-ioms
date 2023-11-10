@@ -14,7 +14,7 @@ const props = defineProps({
     products: Object
 })
 
-let products = reactive(props.products)
+let products = ref(props.products)
 
 function changeToListView() {
     listView.value = true
@@ -25,7 +25,13 @@ function changeToTileView() {
 }
 
 function searchProduct() {
-    console.log(search.value)
+    if(search.value !== '') {
+        products.value = props.products.filter((product) => {
+            return product.name.toLowerCase().includes(search.value) || product.description.toLowerCase().includes(search.value)
+        })
+    } else {
+        products.value = props.products
+    }
 }
 
 function showImage() {
@@ -81,7 +87,7 @@ function showImage() {
                             </div>
                         </div>
                         <div v-show="!listView" class="md:flex md:items-center w-full">
-                            <div class="grid gap-3 mb-6 md:grid-cols-4">
+                            <div class="grid gap-3 mb-6 md:grid-cols-4" v-if="products.length > 0">
                                 <div
                                     class="flex flex-col rounded-lg w-full h-full mt-2 md:mt-0 product-card border-2 border-gray-100"
                                     :class="product.status === 'inactive' ? 'bg-gray-300' : ''"
@@ -133,9 +139,12 @@ function showImage() {
                                     </div>
                                 </div>
                             </div>
+                            <div v-else class="w-full text-center py-6">
+                                <p class="text-3xl">No result found</p>
+                            </div>
                         </div>
                         <div v-show="listView">
-                            <div class="relative overflow-x-auto sm:rounded-lg">
+                            <div v-if="products.length > 0" class="relative overflow-x-auto sm:rounded-lg">
                                 <table
                                     class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
                                     <thead
@@ -203,6 +212,9 @@ function showImage() {
                                     </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div v-else class="w-full text-center py-6">
+                                <p class="text-3xl">No result found</p>
                             </div>
                         </div>
                     </div>

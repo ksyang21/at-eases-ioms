@@ -1,9 +1,9 @@
 <script setup>
 
-import {Head, Link} from "@inertiajs/vue3";
+import {Head, Link, router} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import {inject, reactive, ref} from "vue";
+import {inject, reactive, ref, watch} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const Swal = inject('$swal')
@@ -27,24 +27,6 @@ function getCustomerDetails() {
 }
 
 let totalPrice = ref(0.00)
-
-let canSubmit = ref(true)
-let showError = ref(false)
-
-function submitForm() {
-    canSubmit.value = true
-    showError.value = false
-
-    // let allowedStatuses = ['stock in', 'stock out']
-    // if (form.quantity <= 0 || !allowedStatuses.includes(form.stock_status)) {
-    //     showError.value = true
-    //     canSubmit.value = false
-    // }
-    //
-    // if (canSubmit.value) {
-    //     router.post(`/inventory-logs/${props.product.id}`, form)
-    // }
-}
 
 let productID = ref(0)
 let quantity = ref(0)
@@ -77,16 +59,35 @@ function addToCart() {
         for (let item of cart.products) {
             if (item.product_id === productID.value) {
                 itemIsFound = true
-                item.quantity += quantity.value
+                let totalQuantity = item.quantity + quantity.value
+
+                if (totalQuantity > selectedProduct.value.stock_quantity) {
+                    Swal.fire({
+                        title: `Not enough stock!`,
+                        text: `${selectedProduct.value.name} stock left : ${selectedProduct.value.stock_quantity}`,
+                        icon: 'error'
+                    })
+                } else {
+                    item.quantity += quantity.value
+                }
                 break;
             }
         }
         if (!itemIsFound) {
-            cart.products.push({
-                product_id: productID.value,
-                name: selectedProduct.value.name,
-                quantity: quantity.value,
-            })
+            if (quantity.value <= selectedProduct.value.stock_quantity) {
+                cart.products.push({
+                    product_id: productID.value,
+                    name: selectedProduct.value.name,
+                    quantity: quantity.value,
+                    product: selectedProduct.value
+                })
+            } else {
+                Swal.fire({
+                    title: `Not enough stock!`,
+                    text: `${selectedProduct.value.name} stock left : ${selectedProduct.value.stock_quantity}`,
+                    icon: 'error'
+                })
+            }
         }
 
         // Calculate total price for each product, and get overall total price
@@ -131,6 +132,71 @@ function calculateProductPrice(quantity, product) {
 
     return price
 }
+
+function confirmOrder() {
+    let errorText = ''
+    if (cart.products.length < 1 || cart.customer_id <= 0) {
+        if (cart.products.length < 1) {
+            errorText += 'Empty cart!<br>'
+        }
+        if (cart.customer_id <= 0) {
+            errorText += 'Please select customer first!<br>'
+        }
+
+        Swal.fire({
+            html: errorText,
+            icon: 'error'
+        })
+    } else {
+        let table =
+            ` <table class="w-full text-sm text-left text-gray-500 border-2 border-gray-200">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3">Product</th>
+                        <th class="px-6 py-3">Quantity</th>
+                        <th class="px-6 py-3">Price</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        for (let product of cart.products) {
+            table +=
+                `<tr>
+                    <td class="px-6 py-4">${product.name}</td>
+                    <td class="px-6 py-4 text-center">${product.quantity}</td>
+                    <td class="px-6 py-4">RM ${product.total_price.toFixed(2)}</td>
+                </tr>`
+        }
+        table += '</tbody></table>'
+
+        Swal.fire({
+            title: 'Confirm Order?',
+            html: table,
+            icon: 'info',
+            showCancelButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post('/order', cart)
+            }
+        })
+    }
+}
+
+
+let isCartModalOpen = ref(false)
+
+function openModal() {
+    document.getElementById('cartModal').classList.remove('hidden')
+    isCartModalOpen.value = true
+}
+
+function closeModal() {
+    document.getElementById('cartModal').classList.add('hidden')
+    isCartModalOpen.value = false
+}
+
+function showImage() {
+    return '/storage/'
+}
 </script>
 
 <template>
@@ -143,127 +209,183 @@ function calculateProductPrice(quantity, product) {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
                         <p class="text-2xl">Create New Order</p>
-                        <div class="flex flex-col ml-auto">
-                            <div class="flex items-center">
-                                <font-awesome-icon icon="cart-shopping" class="mr-2 text-red-700"></font-awesome-icon>
-                                {{ cart.products.length }} items
+                        <p class="text-2xl ml-auto hidden md:flex" @click="showCart">
+                            <span class="fa-stack" style="width: 1.8em !important;">
+                                <font-awesome-icon icon="cart-shopping" class="mr-2 text-blue-700"></font-awesome-icon>
+                                <span class="fa-stack" style="left:1.1em;top:-0.8em;">
+                                    <strong class="fa-stack-1x text-gray-600">{{ cart.products.length }}</strong>
+                                </span>
+                            </span>
+                            RM {{ totalPrice.toFixed(2) }}
+                        </p>
+                    </div>
+                    <div class="grid gap-6 md:grid-cols-2 border-b-2 border-gray-100">
+                        <div class="p-6 mx-2">
+                            <div id="select-customer-section">
+                                <label for="customers"
+                                       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                                    customer</label>
+                                <select id="customers" @change="getCustomerDetails"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        v-model="cart.customer_id">
+                                    <option :value="customer.id" v-for="(customer, index) in customers"
+                                            :key="index">
+                                        {{ customer.name }}
+                                    </option>
+                                </select>
+                                <div v-if="cart.customer_id > 0" class="text-sm mt-2">
+                                    <p class="text-red-600">
+                                        <font-awesome-icon icon="phone" class="mr-2"/>
+                                        <span class="text-gray-600">{{ customer.phone }}</span>
+                                    </p>
+                                    <p class="text-red-600">
+                                        <font-awesome-icon icon="location-dot" class="mr-2"/>
+                                        <span class="text-gray-600">{{ customer.address }}</span>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="flex items-center">
-                                <font-awesome-icon icon="sack-dollar" class="mr-2 text-blue-700"></font-awesome-icon>
-                                RM {{ totalPrice.toFixed(2) }}
+                            <div id="select-products-section" class="mt-6">
+                                <label for="products"
+                                       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a
+                                    product</label>
+                                <select id="products" @change="getProductPackage"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        v-model="productID">
+                                    <option :value="product.id" v-for="(product, index) in products"
+                                            :key="index">
+                                        {{ product.name }}
+                                    </option>
+                                </select>
+                                <div v-if="selectedProduct.id > 0" class="text-sm mt-2">
+                                    <p class="text-red-600">
+                                        <font-awesome-icon icon="dollar" class="mr-2"/>
+                                        <span class="text-gray-600">RM {{
+                                                parseFloat(selectedProduct.price).toFixed(2)
+                                            }}</span>
+                                    </p>
+                                    <p class="text-red-600">
+                                        <font-awesome-icon icon="box" class="mr-2"/>
+                                        <span class="text-gray-600">{{ selectedProduct.stock_quantity }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="quantity-section" class="mt-6">
+                                <label for="quantity"
+                                       class="block mb-2 text-sm font-medium text-gray-900">Quantity</label>
+                                <input type="number" id="quantity"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                       placeholder="Quantity" required v-model="quantity">
+                            </div>
+                        </div>
+                        <div class="p-6 mx-2">
+                            <div class="relative overflow-x-auto sm:rounded-lg">
+                                <table class="w-full text-sm text-left text-gray-500 border-2 border-gray-200">
+                                    <thead
+                                        class="text-xs text-gray-700 uppercase bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">
+                                            Package
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            Quantity
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            Price
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody v-if="productID > 0">
+                                    <tr v-for="(item, index) in selectedProduct.packages" :key="index"
+                                        v-if="selectedProduct.packages.length > 0">
+                                        <td class="px-6 py-4">{{ item.name }}</td>
+                                        <td class="px-6 py-4 text-center">{{ item.quantity }}</td>
+                                        <td class="px-6 py-4">RM {{ item.price }}</td>
+                                    </tr>
+                                    <tr v-else class="text-center">
+                                        <td class="px-6 py-4" colspan="3">No package available</td>
+                                    </tr>
+                                    </tbody>
+                                    <tbody v-else>
+                                    <tr>
+                                        <td colspan="43" class="px-6 py-4 text-center">Please select a product</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="mt-6 text-center flex" v-if="productID > 0">
+                                    <button class="w-full bg-blue-500 text-white rounded-md py-1"
+                                            @click="addToCart" type="button">
+                                        <font-awesome-icon icon="plus-circle" class="mr-2"/>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="w-full text-center mt-6">
+                                <p class="text-2xl ml-auto block md:hidden">
+                                        <span class="fa-stack" style="width: 1.5em !important;">
+                                            <font-awesome-icon icon="cart-shopping"
+                                                               class="mr-2 text-blue-700"></font-awesome-icon>
+                                            <span class="fa-stack" style="left:0.1em;top:-0.8em;">
+                                                <strong class="fa-stack-1x text-gray-600">
+                                                    {{ cart.products.length }}
+                                                </strong>
+                                            </span>
+                                        </span>
+                                    <span class="ml-4">RM {{ totalPrice.toFixed(2) }}</span>
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <form @submit.prevent="submitForm">
-                        <div class="grid gap-6 md:grid-cols-2 border-b-2 border-gray-100">
-                            <div class="p-6 mx-2">
-                                <div id="select-customer-section">
-                                    <label for="customers"
-                                           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
-                                        customer</label>
-                                    <select id="customers" @change="getCustomerDetails"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                            v-model="cart.customer_id">
-                                        <option :value="customer.id" v-for="(customer, index) in customers"
-                                                :key="index">
-                                            {{ customer.name }}
-                                        </option>
-                                    </select>
-                                    <div v-if="cart.customer_id > 0" class="text-sm">
-                                        <p class="text-red-600">
-                                            <font-awesome-icon icon="location-dot" class="mr-2"/>
-                                            <span class="text-gray-600">{{ customer.address }}</span>
-                                        </p>
-                                        <p class="text-red-600">
-                                            <font-awesome-icon icon="location-dot" class="mr-2"/>
-                                            Customer Details
-                                        </p>
-                                        <div class="ml-[24px]">
-                                            <p>{{ customer.phone }}</p>
-                                            <p class="text-gray-500"></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="select-products-section" class="mt-6">
-                                    <label for="products"
-                                           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a
-                                        product</label>
-                                    <select id="products" @change="getProductPackage"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                            v-model="productID">
-                                        <option :value="product.id" v-for="(product, index) in products"
-                                                :key="index">
-                                            {{ product.name }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div id="quantity-section" class="mt-6">
-                                    <label for="quantity"
-                                           class="block mb-2 text-sm font-medium text-gray-900">Quantity</label>
-                                    <input type="number" id="quantity"
-                                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                           placeholder="Quantity" required v-model="quantity">
-                                </div>
-                            </div>
-                            <div class="p-6 mx-2">
-                                <div class="relative overflow-x-auto sm:rounded-lg">
-                                    <table class="w-full text-sm text-left text-gray-500 border-2 border-gray-200">
-                                        <thead
-                                            class="text-xs text-gray-700 uppercase bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3">
-                                                Package
-                                            </th>
-                                            <th scope="col" class="px-6 py-3">
-                                                Quantity
-                                            </th>
-                                            <th scope="col" class="px-6 py-3">
-                                                Price
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody v-if="productID > 0">
-                                        <tr v-for="(item, index) in selectedProduct.packages" :key="index"
-                                            v-if="selectedProduct.packages.length > 0">
-                                            <td class="px-6 py-4">{{ item.name }}</td>
-                                            <td class="px-6 py-4 text-center">{{ item.quantity }}</td>
-                                            <td class="px-6 py-4">RM {{ item.price }}</td>
-                                        </tr>
-                                        <tr v-else class="text-center">
-                                            <td class="px-6 py-4" colspan="3">No package available</td>
-                                        </tr>
-                                        </tbody>
-                                        <tbody v-else>
-                                        <tr>
-                                            <td colspan="43" class="px-6 py-4 text-center">Please select a product</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    <div class="mt-6 text-center flex" v-if="productID > 0">
-                                        <button class="w-full bg-blue-500 text-white rounded-md py-1"
-                                                @click="addToCart" type="button">
-                                            <font-awesome-icon icon="plus-circle" class="mr-2"/>
-                                            Add to Cart
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <Link :href="route('orders.index')"
-                                      class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                    <font-awesome-icon icon="angle-left" class="mr-1"/>
-                                    Back to Order Listing
-                                </Link>
-                                <button
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <Link :href="route('orders.index')"
+                                  class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                <font-awesome-icon icon="angle-left" class="mr-1"/>
+                                Back to Order Listing
+                            </Link>
+                            <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id > 0"
                                     class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
-                                    <font-awesome-icon icon="check-circle" class="mr-2"/>
-                                    Create Order
-                                </button>
-                            </div>
+                                <font-awesome-icon icon="check-circle" class="mr-2"/>
+                                Create Order
+                            </button>
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                    @click="openModal">
+                                View Cart
+                            </button>
                         </div>
-                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Cart Modal container-->
+        <div v-if="isCartModalOpen" class="fixed inset-0 bg-gray-800 bg-opacity-50"></div>
+        <div id="cartModal" class="w-full md:w-1/3 hidden fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
+            <div class="top-0 p-6 border-b-2 border-gray-100 flex items-center">
+                <p class="text-2xl">Cart</p>
+                <button class="text-red-600 ml-auto" @click="closeModal">
+                    <font-awesome-icon icon="times-circle"/>
+                </button>
+            </div>
+            <div class="bg-white p-6 rounded-lg">
+                <div v-if="cart.products.length === 0" class="py-6 text-2xl flex justify-center">
+                    <img src="/storage/system/empty-cart.png" alt="Cart is Empty.">
+                </div>
+                <div v-else class="py-6">
+                    <div class="py-6 flex items-center border-b-2 border-gray-100"
+                         v-for="(product, index) in cart.products" :key="index">
+                        <img
+                            :src="product.product.image !== null ? showImage() + product.product.image : showImage() + 'image/no-image.jpg'"
+                            alt="product" class="max-h-[120px] max-w-[120px]">
+                        <div class="flex flex-col ml-6">
+                            <p class="text-xl font-semibold">{{ product.name }}</p>
+                            <p>Quantity : {{ product.quantity }}</p>
+                        </div>
+                        <div class="ml-auto">
+                            <p class="text-2xl">RM {{ product.total_price.toFixed(2) }}</p>
+                        </div>
+                    </div>
+                    <div class="py-6">
+                        <p class="text-2xl mb-4">Total Items : {{ cart.products.length }}</p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,35 +16,36 @@ const props = defineProps({
 let orders = ref(props.orders)
 let status = ref('all')
 let search = ref('')
+let deliveryMethod = ref('all')
 
 function changeStatus(selectedStatus) {
     selectedStatus = selectedStatus.toLowerCase()
     status.value = selectedStatus
     if (selectedStatus !== 'all') {
-        orders = props.orders.filter((order) => {
+        orders.value = props.orders.filter((order) => {
             return order.status.toLowerCase() === selectedStatus
         })
     } else {
-        orders = props.orders
+        orders.value = props.orders
     }
 }
 
 function searchOrder() {
     if (search.value !== '') {
-        orders = props.orders.filter((order) => {
-            return order.id.toString().includes(search.value)
+        orders.value = props.orders.filter((order) => {
+            return order.order_no.toString().includes(search.value)
         })
     } else {
         if (status.value !== 'all') {
             changeStatus(status.value)
         } else {
-            orders = props.orders
+            orders.value = props.orders
         }
     }
 }
 
 function filterByDeliveryMethod(methodID) {
-    orders = props.orders.filter((order) => {
+    orders.value = props.orders.filter((order) => {
         return parseInt(order.delivery_method_id) === parseInt(methodID)
     })
 }
@@ -78,9 +79,9 @@ function filterByDeliveryMethod(methodID) {
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
                         <div class="md:flex items-center mb-3">
                             <p class="text-2xl">{{ orders.length }} orders</p>
-                            <VueDatePicker class="md:ml-auto mt-2 md:mt-0" range></VueDatePicker>
+                            <!--                            <VueDatePicker class="md:ml-auto mt-2 md:mt-0" range></VueDatePicker>-->
                             <fwb-dropdown text="Delivery Method" placement="bottom"
-                                          class="mt-2 md:mt-0 ml-2 w-full md:w-auto">
+                                          class="mt-2 md:mt-0 ml-auto w-full md:w-auto">
                                 <template #trigger>
                                 <span
                                     class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2 flex items-center">
@@ -100,7 +101,7 @@ function filterByDeliveryMethod(methodID) {
                                 Export
                             </button>
                             <Link :href="route('order.create')"
-                                    class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2 w-full md:w-auto mt-2 md:mt-0 md:ml-2 md:flex md:items-center">
+                                  class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2 w-full md:w-auto mt-2 md:mt-0 md:ml-2 md:flex md:items-center w-full">
                                 <font-awesome-icon icon="plus-circle" class="mr-2"/>
                                 New Order
                             </Link>
@@ -158,7 +159,7 @@ function filterByDeliveryMethod(methodID) {
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <p class="font-semibold"># {{ order.order_no }}</p>
-                                        <p class="px-2 bg-blue-200 rounded-md text-sm">{{order.delivery_no}}</p>
+                                        <p class="px-2 bg-blue-200 rounded-md text-sm">{{ order.delivery_no }}</p>
                                     </th>
                                     <td scope="row" class="px-6 py-4 font-semibold">
                                         <p v-if="order.status === 'completed'" class="text-green-700">
@@ -184,7 +185,7 @@ function filterByDeliveryMethod(methodID) {
                                         <p>{{ order.customer.name }}</p>
                                         <p>{{ order.customer.address }}</p>
                                     </td>
-                                    <td class="px-6 py-4">{{ order.delivery_method.delivery_method }}</td>
+                                    <td class="px-6 py-4">{{ order.delivery_method !== null ? order.delivery_method.delivery_method : '-'}}</td>
                                     <td class="px-6 py-4">
                                         <p class="font-semibold">RM{{ parseFloat(order.total_price).toFixed(2) }}</p>
                                         <p>
@@ -195,7 +196,7 @@ function filterByDeliveryMethod(methodID) {
                                     <td class="px-6 py-4 align-middle">
                                         <div class="flex items-center">
                                             <Link :href="route('order.show', order.id)"
-                                                class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1">
+                                                  class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1">
                                                 Details
                                             </Link>
                                             <font-awesome-icon icon="check-circle"

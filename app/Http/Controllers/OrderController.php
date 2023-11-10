@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryLog;
+use App\Models\OrderDetails;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Models\Order;
 use App\Models\Package;
@@ -20,12 +23,16 @@ class OrderController extends Controller
     public function index()
     {
         $delivery_methods = DeliveryMethod::all();
-        $orders = Order::all();
+        $orders           = Order::all();
         foreach ($orders as &$order) {
             $order['seller']          = $order->seller;
             $order['customer']        = $order->customer;
             $order['details']         = $order->details;
-            $order['delivery_method'] = $order->deliveryMethod;
+            if($order->delivery_method_id !== null) {
+                $order['delivery_method'] = $order->deliveryMethod;
+            } else {
+                $order['delivery_method'] = null;
+            }
         }
         return Inertia::render('Order/Index', [
             'delivery_methods' => $delivery_methods,
@@ -39,7 +46,7 @@ class OrderController extends Controller
     public function create(): \Inertia\Response
     {
         // Get current user customer
-        $customers = Customer::where('seller_id', Auth::id())->get();
+        $customers    = Customer::where('seller_id', Auth::id())->get();
         $all_products = Product::where('status', 'active')->get();
         foreach ($all_products as &$product) {
             $get_packages = PackageProduct::where('product_id', $product->id)->get();
@@ -58,8 +65,8 @@ class OrderController extends Controller
             $product['packages'] = $packages;
         }
         return Inertia::render('Order/Create', [
-            'products' => $all_products,
-            'customers' => $customers
+            'products'  => $all_products,
+            'customers' => $customers,
         ]);
     }
 
@@ -68,7 +75,78 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $products    = $request->request->all()['products'];
+        $customer_id = $request->request->all()['customer_id'];
+        $seller_id   = Auth::id();
+
+        // get latest order to generate order no
+        $latest_order = Order::latest()->first();
+        if ($latest_order) {
+            $new_order_id = intval($latest_order->id) + 1;
+        } else {
+            $new_order_id = 1;
+        }
+
+        $order = Order::create([
+            'order_no' => sprintf('OD%d', 1000 + $new_order_id),
+            'status' => 'pending',
+            'seller_id' => $seller_id,
+            'customer_id' => $customer_id,
+        ]);
+
+        $order_total_price = 0.00;
+        foreach ($products as $product) {
+            $product_item = Product::where('id', $product['product_id'])->first();
+
+            if ($product['quantity'] <= $product_item['stock_quantity']) {
+                // Get most suitable package
+                $packages            = PackageProduct::where('product_id', $product['product_id'])->get();
+                $sorted_packages     = $packages->sortByDesc('quantity');
+                $remaining_quantity  = $product['quantity'];
+                $total_product_price = 0;
+                foreach ($sorted_packages as $pack) {
+                    $number_of_package = floor($remaining_quantity / $pack->quantity);
+
+                    if ($number_of_package > 0) {
+                        $total_product_price += $number_of_package * $pack->price;
+                        $remaining_quantity  -= $number_of_package * $pack->quantity;
+                    }
+
+                    if ($remaining_quantity === 0) {
+                        break;
+                    }
+                }
+
+                if ($remaining_quantity > 0) {
+                    $original_price      = $product_item->price; // Replace with the actual original price
+                    $total_product_price += $remaining_quantity * $original_price;
+                }
+
+                $order_total_price += $total_product_price;
+
+                $order_details = OrderDetails::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $product['product_id'],
+                    'quantity'   => $product['quantity'],
+                    'price'      => $total_product_price,
+                ]);
+
+                InventoryLog::create([
+                    'product_id' => $product['product_id'],
+                    'quantity' => $product['quantity'],
+                    'stock_status' => 'stock out',
+                    'description' => sprintf('#OD%d', 1000 + $new_order_id),
+                ]);
+
+                $product_item->stock_quantity = $product_item->stock_quantity - $product['quantity'];
+                $product_item->update();
+            }
+        }
+
+        $order->total_price = $order_total_price;
+        $order->update();
+
+        return Redirect::route('orders.index')->with('success', 'Order created!');
     }
 
     /**

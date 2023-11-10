@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
             $table->unsignedInteger('quantity');
             $table->enum('stock_status', ['stock in', 'stock out']);
+            $table->text('description')->nullable()->default('-');
             $table->timestamps();
         });
     }

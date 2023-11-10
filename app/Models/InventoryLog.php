@@ -14,7 +14,8 @@ class InventoryLog extends Model
     protected $fillable = [
         'product_id',
         'quantity',
-        'stock_status'
+        'stock_status',
+        'description'
     ];
 
     public function product(): \Illuminate\Database\Eloquent\Relations\HasOne
