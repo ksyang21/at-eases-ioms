@@ -20,12 +20,12 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
         $breadcrumbs      = [
             [
                 'label' => 'All Order',
-                'link'  => 'orders',
+                'link'  => 'orders.index',
             ],
         ];
         $delivery_methods = DeliveryMethod::all();
@@ -156,16 +156,20 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): \Inertia\Response
     {
         $order            = Order::find($id);
         $order['details'] = $order->details;
         foreach ($order['details'] as &$detail) {
             $detail['product'] = $detail->product;
         }
-        $customer        = $order->customer;
-        $seller          = $order->seller;
-        $delivery_method = $order->deliveryMethod;
+        $customer = $order->customer;
+        $seller   = $order->seller;
+        if ($order->delivery_method_id !== NULL) {
+            $delivery_method = $order->deliveryMethod;
+        } else {
+            $delivery_method = NULL;
+        }
         return Inertia::render('Order/Details', [
             'order'           => $order,
             'seller'          => $seller,
@@ -209,6 +213,24 @@ class OrderController extends Controller
     {
         $order->status = 'cancelled';
         $order->update();
+
+        $order_details = OrderDetails::where('order_id', $order->id)->get();
+        foreach ($order_details as $detail) {
+            $product_id = $detail->product_id;
+            $quantity = $detail->quantity;
+
+            InventoryLog::create([
+                'product_id'   => $product_id,
+                'quantity'     => $quantity,
+                'stock_status' => 'stock in',
+                'description'  => '#'.$order->order_no,
+            ]);
+
+            $product_item = Product::find($product_id);
+            $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
+            $product_item->update();
+        }
+
         return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
     }
 
@@ -216,25 +238,62 @@ class OrderController extends Controller
     {
         $order->status = 'rejected';
         $order->update();
+
+        $order_details = OrderDetails::where('order_id', $order->id)->get();
+        foreach ($order_details as $detail) {
+            $product_id = $detail->product_id;
+            $quantity = $detail->quantity;
+
+            InventoryLog::create([
+                'product_id'   => $product_id,
+                'quantity'     => $quantity,
+                'stock_status' => 'stock in',
+                'description'  => '#'.$order->order_no,
+            ]);
+
+            $product_item = Product::find($product_id);
+            $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
+            $product_item->update();
+        }
+
         return redirect()->route('orders.index')->with('success', sprintf('#%s rejected', $order->order_no));
     }
 
-    public function inTransitOrder(Request $request, Order $order)
+    public function inTransitOrder(Request $request, Order $order): \Illuminate\Http\RedirectResponse
     {
         $order->status = 'in transit';
         $order->update();
         return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
     }
 
-    public function completeOrder(Order $order) {
-        $order->status= 'completed';
+    public function completeOrder(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $order->status = 'completed';
         $order->update();
         return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
     }
 
-    public function returnOrder(Order $order) {
-        $order->status= 'return';
+    public function returnOrder(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $order->status = 'return';
         $order->update();
+
+        $order_details = OrderDetails::where('order_id', $order->id)->get();
+        foreach ($order_details as $detail) {
+            $product_id = $detail->product_id;
+            $quantity = $detail->quantity;
+
+            InventoryLog::create([
+                'product_id'   => $product_id,
+                'quantity'     => $quantity,
+                'stock_status' => 'stock in',
+                'description'  => '#'.$order->order_no,
+            ]);
+
+            $product_item = Product::find($product_id);
+            $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
+            $product_item->update();
+        }
         return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
     }
 }
