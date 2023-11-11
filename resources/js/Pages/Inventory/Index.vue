@@ -11,7 +11,8 @@ let listView = ref(false)
 let search = ref('')
 
 const props = defineProps({
-    products: Object
+    products: Object,
+    breadcrumbs: Object
 })
 
 let products = ref(props.products)
@@ -46,7 +47,7 @@ function showImage() {
         <!--                <template #header>-->
         <!--                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>-->
         <!--                </template>-->
-        <Breadcrumb></Breadcrumb>
+        <Breadcrumb :breadcrumbs="breadcrumbs"></Breadcrumb>
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -87,7 +88,7 @@ function showImage() {
                             </div>
                         </div>
                         <div v-show="!listView" class="md:flex md:items-center w-full">
-                            <div class="grid gap-3 mb-6 md:grid-cols-4" v-if="products.length > 0">
+                            <div class="grid gap-3 mb-6 md:grid-cols-4 xl:grid-cols-6" v-if="products.length > 0">
                                 <div
                                     class="flex flex-col rounded-lg w-full h-full mt-2 md:mt-0 product-card border-2 border-gray-100"
                                     :class="product.status === 'inactive' ? 'bg-gray-300' : ''"
