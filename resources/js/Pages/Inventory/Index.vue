@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {Head} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {reactive, ref} from "vue";
+import { ref} from "vue";
 import {Link} from "@inertiajs/vue3";
 
 let listView = ref(false)
