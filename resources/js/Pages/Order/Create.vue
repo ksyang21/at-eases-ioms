@@ -10,7 +10,8 @@ const Swal = inject('$swal')
 
 const props = defineProps({
     products: Object,
-    customers: Object
+    customers: Object,
+    breadcrumbs: Object
 })
 
 let cart = reactive({
@@ -226,7 +227,7 @@ function removeProduct(product) {
         icon: 'warning',
         showCancelButton: true,
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             const index = cart.products.indexOf(product)
             if (index !== -1) {
                 cart.products.splice(index, 1)
@@ -241,7 +242,7 @@ function removeProduct(product) {
 
     <Head title="Products"/>
     <AuthenticatedLayout>
-        <Breadcrumb></Breadcrumb>
+        <Breadcrumb :breadcrumbs="breadcrumbs"></Breadcrumb>
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -351,20 +352,6 @@ function removeProduct(product) {
                                     </button>
                                 </div>
                             </div>
-                            <div class="w-full text-center mt-6">
-                                <p class="text-2xl ml-auto block md:hidden">
-                                        <span class="fa-stack" style="width: 1.5em !important;">
-                                            <font-awesome-icon icon="cart-shopping"
-                                                               class="mr-2 text-blue-700"></font-awesome-icon>
-                                            <span class="fa-stack" style="left:0.1em;top:-0.8em;">
-                                                <strong class="fa-stack-1x text-gray-600">
-                                                    {{ cart.products.length }}
-                                                </strong>
-                                            </span>
-                                        </span>
-                                    <span class="ml-4">RM {{ totalPrice.toFixed(2) }}</span>
-                                </p>
-                            </div>
                         </div>
                     </div>
                     <div class="p-6">
@@ -376,7 +363,8 @@ function removeProduct(product) {
                             </Link>
                             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
                                     @click="openModal">
-                                View Cart <span class="ml-2 px-1.5 bg-white rounded-sm text-black">{{cart.products.length}}</span>
+                                View Cart <span
+                                class="ml-2 px-1.5 bg-white rounded-sm text-black">{{ cart.products.length }}</span>
                             </button>
                         </div>
                     </div>
@@ -397,15 +385,16 @@ function removeProduct(product) {
                     <img src="/storage/system/empty-cart.png" alt="Cart is Empty.">
                 </div>
                 <div v-else class="pb-6">
-                    <div class="py-6 flex items-center border-b-2 border-gray-100"
+                    <div class="py-6 border-b-2 border-gray-100"
                          v-for="(product, index) in cart.products" :key="index">
-                        <img
-                            :src="product.product.image !== null ? showImage() + product.product.image : showImage() + 'image/no-image.jpg'"
-                            alt="product" class="max-h-[120px] max-w-[120px]">
-                        <div class="flex flex-col ml-6">
-                            <p class="text-xl font-semibold">{{ product.name }}</p>
-                        </div>
-                        <span class="input-wrapper mt-2 ml-auto">
+                        <div class="flex items-center">
+                            <img
+                                :src="product.product.image !== null ? showImage() + product.product.image : showImage() + 'image/no-image.jpg'"
+                                alt="product" class="max-h-[120px] max-w-[120px]">
+                            <div class="flex flex-col ml-6">
+                                <p class="text-xl font-semibold">{{ product.name }}</p>
+                            </div>
+                            <span class="input-wrapper mt-2 ml-auto">
                               <button @click="reduceQuantity(product)" v-if="product.quantity > 0">-</button>
                               <input type="number" v-model="product.quantity" class="border-2 border-gray-300"
                                      @change="updateCart(product, product.quantity, product.product)" min="0"
@@ -413,11 +402,20 @@ function removeProduct(product) {
                               <button @click="addQuantity(product)"
                                       v-if="product.quantity < product.product.stock_quantity">+</button>
                             </span>
-                        <div class="ml-auto flex items-center">
-                            <p class="text-2xl">RM {{ product.total_price.toFixed(2) }}</p>
-                            <p class="ml-4 text-red-600 hover:text-red-900 cursor-pointer" @click="removeProduct(product)">
-                                <font-awesome-icon icon="trash" />
-                            </p>
+                            <div class="ml-auto items-center hidden md:flex">
+                                <p class="text-2xl">RM {{ product.total_price.toFixed(2) }}</p>
+                                <p class="ml-4 text-red-600 hover:text-red-900 cursor-pointer"
+                                   @click="removeProduct(product)">
+                                    <font-awesome-icon icon="trash"/>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="items-center flex md:hidden text-center mt-3">
+                            <button class="bg-red-600 text-white hover:bg-red-900 cursor-pointer py-1 px-4 rounded-md "
+                                    @click="removeProduct(product)">
+                                <font-awesome-icon icon="trash"/>
+                            </button>
+                            <p class="text-2xl ml-auto">RM {{ product.total_price.toFixed(2) }}</p>
                         </div>
                     </div>
                     <div class="py-6 flex flex-col items-end">

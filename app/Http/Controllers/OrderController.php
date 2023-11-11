@@ -24,7 +24,7 @@ class OrderController extends Controller
     {
         $breadcrumbs      = [
             [
-                'label' => 'All Order',
+                'label' => 'Orders',
                 'link'  => 'orders.index',
             ],
         ];
@@ -52,6 +52,17 @@ class OrderController extends Controller
      */
     public function create(): \Inertia\Response
     {
+        $breadcrumbs      = [
+            [
+                'label' => 'Orders',
+                'link'  => 'orders.index',
+            ],
+            [
+                'label' => 'New Order',
+                'link'  => 'order.create',
+            ],
+        ];
+
         // Get current user customer
         $customers    = Customer::where('seller_id', Auth::id())->get();
         $all_products = Product::where('status', 'active')->get();
@@ -71,6 +82,7 @@ class OrderController extends Controller
         return Inertia::render('Order/Create', [
             'products'  => $all_products,
             'customers' => $customers,
+            'breadcrumbs' => $breadcrumbs
         ]);
     }
 
@@ -170,11 +182,25 @@ class OrderController extends Controller
         } else {
             $delivery_method = NULL;
         }
+
+        $breadcrumbs      = [
+            [
+                'label' => 'Orders',
+                'link'  => 'orders.index',
+            ],
+            [
+                'label' => sprintf('Details (#%s)', $order->order_no),
+                'link'  => 'order.show',
+                'params' => $order->id
+            ],
+        ];
+
         return Inertia::render('Order/Details', [
             'order'           => $order,
             'seller'          => $seller,
             'customer'        => $customer,
             'delivery_method' => $delivery_method,
+            'breadcrumbs' => $breadcrumbs
         ]);
     }
 

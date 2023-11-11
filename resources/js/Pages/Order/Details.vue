@@ -12,6 +12,7 @@ const props = defineProps({
     seller: Object,
     customer: Object,
     delivery_method: Object,
+    breadcrumbs: Object
 })
 
 let totalProductQuantity = 0
@@ -24,7 +25,7 @@ for (let detail of props.order.details) {
     <Head title="Order Details"/>
 
     <AuthenticatedLayout>
-        <Breadcrumb></Breadcrumb>
+        <Breadcrumb :breadcrumbs="breadcrumbs"></Breadcrumb>
         <div class="py-0">
             <!--            <div class="max-w-2xl mx-auto mt-10">-->
             <!--                <div class="relative">-->
@@ -76,6 +77,12 @@ for (let detail of props.order.details) {
                                 </p>
                                 <p v-if="order.status === 'cancelled'" class="text-gray-700">
                                     • {{ order.status.toUpperCase() }}
+                                </p>
+                                <p v-if="order.status === 'approved'" class="text-green-600">
+                                    •{{ order.status.toUpperCase() }}
+                                </p>
+                                <p v-if="order.status === 'rejected'" class="text-red-700">
+                                    •{{ order.status.toUpperCase() }}
                                 </p>
                             </div>
                         </div>
@@ -161,12 +168,14 @@ for (let detail of props.order.details) {
                                     Logistic Information
                                 </p>
                                 <div class="ml-[24px]">
-                                    <div v-if="order.status !== 'pending'" class="flex items-center`">
+                                    <div v-if="order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'approved'" class="flex items-center`">
                                         <p>{{ delivery_method.delivery_method }}</p>
                                         <p class="px-2 bg-blue-200 rounded-md text-sm ml-2">#{{ order.delivery_no }}</p>
                                     </div>
                                     <div v-else>
-                                        <p>Pending shipment</p>
+                                        <p v-if="order.status === 'pending'">Pending approval</p>
+                                        <p v-if="order.status === 'rejected'" class="text-red-900">Order Rejected</p>
+                                        <p v-if="order.status === 'approved'" class="text-blue-700">Pending Shipment</p>
                                     </div>
                                 </div>
                             </div>
