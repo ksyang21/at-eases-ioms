@@ -19,10 +19,15 @@ const items = [
 </script>
 
 <template>
-    <nav class="breadcrumb mx-auto sm:px-6 lg:px-8 py-8">
-        <p v-for="(item, index) in items">
+    <nav class="breadcrumb mx-auto sm:px-6 lg:px-8 py-8 flex text-[15px] md:text-[25px]">
+        <p>
+          <span class="breadcrumb-item">
+              <Link :href="route('dashboard')">Home</Link>
+          </span>
+        </p>
+        <p v-for="(item, index) in breadcrumbs">
           <span :key="index" class="breadcrumb-item">
-              <template v-if="index > 0"> > </template>
+              <span class="mr-3">/</span>
               <Link :href="route(item.link)">{{ item.label }}</Link>
           </span>
         </p>
@@ -32,20 +37,12 @@ const items = [
 .breadcrumb {
     background: #f5f5f5;
     border-radius: 5px;
-    display: flex;
     align-items: center;
 }
 
 .breadcrumb-item {
-    font-size: 30px;
     color: #333;
     margin-left: 5px;
     margin-right: 5px;
-}
-
-.breadcrumb-item:not(:first-child)::before {
-    content: '>';
-    margin: 0 10px;
-    color: #777;
 }
 </style>
