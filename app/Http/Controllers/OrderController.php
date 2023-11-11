@@ -228,14 +228,14 @@ class OrderController extends Controller
         //
     }
 
-    public function approveOrder(Order $order): \Illuminate\Http\RedirectResponse
+    public function approveOrder(Order $order): \Symfony\Component\HttpFoundation\Response
     {
         $order->status = 'approved';
         $order->update();
-        return redirect()->route('orders.index')->with('success', sprintf('#%s approved!', $order->order_no));
+        return Inertia::location(route('orders.index'));
     }
 
-    public function cancelOrder(Order $order): \Illuminate\Http\RedirectResponse
+    public function cancelOrder(Order $order): \Symfony\Component\HttpFoundation\Response
     {
         $order->status = 'cancelled';
         $order->update();
@@ -257,10 +257,48 @@ class OrderController extends Controller
             $product_item->update();
         }
 
-        return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
+        return Inertia::location(route('orders.index'));
     }
 
-    public function rejectOrder(Order $order): \Illuminate\Http\RedirectResponse
+    public function inTransitOrder(Request $request, Order $order): \Symfony\Component\HttpFoundation\Response
+    {
+        $order->status = 'in transit';
+        $order->update();
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function completeOrder(Order $order): \Symfony\Component\HttpFoundation\Response
+    {
+        $order->status = 'completed';
+        $order->update();
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function returnOrder(Order $order): \Symfony\Component\HttpFoundation\Response
+    {
+        $order->status = 'return';
+        $order->update();
+
+        $order_details = OrderDetails::where('order_id', $order->id)->get();
+        foreach ($order_details as $detail) {
+            $product_id = $detail->product_id;
+            $quantity = $detail->quantity;
+
+            InventoryLog::create([
+                'product_id'   => $product_id,
+                'quantity'     => $quantity,
+                'stock_status' => 'stock in',
+                'description'  => '#'.$order->order_no,
+            ]);
+
+            $product_item = Product::find($product_id);
+            $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
+            $product_item->update();
+        }
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function rejectOrder(Order $order): \Symfony\Component\HttpFoundation\Response
     {
         $order->status = 'rejected';
         $order->update();
@@ -282,44 +320,6 @@ class OrderController extends Controller
             $product_item->update();
         }
 
-        return redirect()->route('orders.index')->with('success', sprintf('#%s rejected', $order->order_no));
-    }
-
-    public function inTransitOrder(Request $request, Order $order): \Illuminate\Http\RedirectResponse
-    {
-        $order->status = 'in transit';
-        $order->update();
-        return redirect()->route('orders.index')->with('success', sprintf('#%s cancelled!', $order->order_no));
-    }
-
-    public function completeOrder(Order $order): \Illuminate\Http\RedirectResponse
-    {
-        $order->status = 'completed';
-        $order->update();
-        return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
-    }
-
-    public function returnOrder(Order $order): \Illuminate\Http\RedirectResponse
-    {
-        $order->status = 'return';
-        $order->update();
-
-        $order_details = OrderDetails::where('order_id', $order->id)->get();
-        foreach ($order_details as $detail) {
-            $product_id = $detail->product_id;
-            $quantity = $detail->quantity;
-
-            InventoryLog::create([
-                'product_id'   => $product_id,
-                'quantity'     => $quantity,
-                'stock_status' => 'stock in',
-                'description'  => '#'.$order->order_no,
-            ]);
-
-            $product_item = Product::find($product_id);
-            $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
-            $product_item->update();
-        }
-        return redirect()->route('orders.index')->with('success', sprintf('#%s completed!', $order->order_no));
+        return Inertia::location(route('orders.index'));
     }
 }
