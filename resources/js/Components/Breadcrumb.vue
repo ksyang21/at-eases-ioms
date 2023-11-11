@@ -45,4 +45,8 @@ const items = [
     margin-left: 5px;
     margin-right: 5px;
 }
+
+.breadcrumb-item:hover {
+    color: #d71d28;
+}
 </style>
