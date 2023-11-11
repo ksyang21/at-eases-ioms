@@ -157,7 +157,7 @@ if (message.value) {
 
             <Sidebar></Sidebar>
             <!-- Page Content -->
-            <main id="panel" class="ml-0 md:ml-64">
+            <main id="panel" class="ml-0 md:ml-64 px-4">
                 <slot/>
             </main>
         </div>
