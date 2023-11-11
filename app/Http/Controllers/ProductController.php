@@ -16,10 +16,17 @@ class ProductController extends Controller
      */
     public function index(): \Inertia\Response
     {
+        $breadcrumbs = [
+            [
+                'label' => 'Inventory',
+                'link' => 'products.index'
+            ],
+        ];
         $products = Product::orderBy('status')->orderBy('name')->get();
 
         return Inertia::render('Inventory/Index', [
             'products' => $products,
+            'breadcrumbs' => $breadcrumbs
         ]);
     }
 
@@ -28,7 +35,19 @@ class ProductController extends Controller
      */
     public function create(): \Inertia\Response
     {
-        return Inertia::render('Inventory/Create');
+        $breadcrumbs = [
+            [
+                'label' => 'Inventory',
+                'link' => 'products.index'
+            ],
+            [
+                'label' => 'New Product',
+                'link' => 'product.create'
+            ],
+        ];
+        return Inertia::render('Inventory/Create', [
+            'breadcrumbs' => $breadcrumbs
+        ]);
     }
 
     /**
