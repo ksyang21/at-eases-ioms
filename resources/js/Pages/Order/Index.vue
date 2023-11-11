@@ -58,7 +58,7 @@ function approveOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/approve-order/${order.id}`)
         }
     })
