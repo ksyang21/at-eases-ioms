@@ -28,7 +28,8 @@ const items = [
         <p v-for="(item, index) in breadcrumbs">
           <span :key="index" class="breadcrumb-item">
               <span class="mr-3">/</span>
-              <Link :href="route(item.link)">{{ item.label }}</Link>
+              <Link v-if="item.params" :href="route(item.link, item.params)">{{ item.label }}</Link>
+              <Link v-else :href="route(item.link)">{{ item.label }}</Link>
           </span>
         </p>
     </nav>
