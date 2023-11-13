@@ -6,6 +6,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, reactive, ref} from "vue";
 import {FwbDropdown, FwbListGroup, FwbListGroupItem} from "flowbite-vue";
+import moment from "moment/moment.js";
 
 const props = defineProps({
     orders: Object,
@@ -301,6 +302,7 @@ function rejectOrder(order) {
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <p class="font-semibold"># {{ order.order_no }}</p>
+                                        <p class="font-thin text-sm text-gray-600">{{ moment(order.created_at).format('YYYY-MM-DD HH:mm:ss') }}</p>
                                     </th>
                                     <td scope="row" class="px-6 py-4 font-semibold text-xs">
                                         <p v-if="order.status === 'approved'" class="text-green-600">

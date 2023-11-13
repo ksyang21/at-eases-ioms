@@ -25,6 +25,12 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Sales Order
                 </Link>
             </li>
+            <li class="nav-item" :class="route().current('campaigns.index') || route().current('order.show') || route().current('order.create') ? 'active-link' : ''">
+                <Link :href="route('campaigns.index')" :active="route().current('campaigns.index')" class="nav-link">
+                    <font-awesome-icon icon="fire" class="mx-1"/>
+                    Campaign
+                </Link>
+            </li>
             <li class="nav-item">
                 <Link :href="route('dashboard')" :active="route().current('dashboard')" class="nav-link">
                     <font-awesome-icon icon="sitemap" class="mx-1"/>

@@ -4,17 +4,6 @@ import {Link} from "@inertiajs/vue3";
 const props = defineProps({
     breadcrumbs: Object
 })
-
-const items = [
-    {
-        label: 'Home',
-        link: 'dashboard'
-    },
-    {
-        label: 'Products',
-        link: 'products.index'
-    }
-]
 </script>
 
 <template>

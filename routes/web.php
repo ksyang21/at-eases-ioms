@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SalesCampaignController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -88,6 +89,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/delivery/{deliveryMethod}', [DeliveryMethodController::class, 'update'])->name('delivery.update');
     Route::put('/deactivate-delivery/{deliveryMethod}', [DeliveryMethodController::class, 'deactivate'])->name('delivery.deactivate');
     Route::put('/activate-delivery/{deliveryMethod}', [DeliveryMethodController::class, 'activate'])->name('delivery.activate');
+
+    /**
+     * Campaigns
+     */
+    Route::get('/campaigns', [SalesCampaignController::class, 'index'])->name('campaigns.index');
 });
 
 Route::get('/inventory', function () {
