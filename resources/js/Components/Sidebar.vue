@@ -32,6 +32,18 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                 </Link>
             </li>
         </ul>
+        <hr>
+        <p class="pt-6 px-6 text-gray-400 text-sm font-bold">
+            Settings
+        </p>
+        <ul>
+            <li class="nav-item" :class="route().current('delivery.index') ? 'active-link' : ''">
+                <Link :href="route('delivery.index')" :active="route().current('delivery.index')" class="nav-link">
+                    <font-awesome-icon icon="truck" class="mx-1"/>
+                    Delivery Method
+                </Link>
+            </li>
+        </ul>
     </aside>
 </template>
 

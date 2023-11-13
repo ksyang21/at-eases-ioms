@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeliveryMethodController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
@@ -78,6 +79,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/complete-order/{order}', [OrderController::class, 'completeOrder'])->name('order.complete');
     Route::put('/return-order/{order}', [OrderController::class, 'returnOrder'])->name('order.return');
     Route::put('/in-transit-order/{order}', [OrderController::class, 'inTransitOrder'])->name('order.inTransit');
+
+    /**
+     * Delivery Methods
+     */
+    Route::get('/delivery', [DeliveryMethodController::class, 'index'])->name('delivery.index');
+    Route::post('/delivery', [DeliveryMethodController::class, 'store'])->name('delivery.store');
+    Route::put('/delivery/{deliveryMethod}', [DeliveryMethodController::class, 'update'])->name('delivery.update');
+    Route::put('/deactivate-delivery/{deliveryMethod}', [DeliveryMethodController::class, 'deactivate'])->name('delivery.deactivate');
+    Route::put('/activate-delivery/{deliveryMethod}', [DeliveryMethodController::class, 'activate'])->name('delivery.activate');
 });
 
 Route::get('/inventory', function () {

@@ -4,23 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\DeliveryMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class DeliveryMethodController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $breadcrumbs      = [
+            [
+                'label' => 'Manage Delivery Method',
+                'link'  => 'delivery.index',
+            ],
+        ];
+        $delivery_methods = DeliveryMethod::orderBy('status')->orderBy('delivery_method')->get();
+        return Inertia::render('DeliveryMethod/Index', [
+            'delivery_methods' => $delivery_methods,
+            'breadcrumbs'      => $breadcrumbs,
+        ]);
     }
 
     /**
@@ -28,23 +33,30 @@ class DeliveryMethodController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validator = Validator::make($request->all(), [
+            'name'  => [
+                'required','string', 'max:255',
+                Rule::unique('delivery_methods', 'delivery_method'),
+            ],
+            'status' => [
+                'required',
+                Rule::in(['active', 'inactive']),
+            ],
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(DeliveryMethod $deliveryMethod)
-    {
-        //
-    }
+        if ($validator->fails()) {
+            return Inertia::render('DeliveryMethod/Index', [
+                'errors' => $validator->errors()->all(),
+            ]);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DeliveryMethod $deliveryMethod)
-    {
-        //
+        $data = $validator->getData();
+        $delivery_method = DeliveryMethod::create([
+            'delivery_method' => $data['name'],
+            'status' => $data['status'],
+        ]);
+
+        return Inertia::location(route('delivery.index'));
     }
 
     /**
@@ -52,14 +64,22 @@ class DeliveryMethodController extends Controller
      */
     public function update(Request $request, DeliveryMethod $deliveryMethod)
     {
-        //
+        $deliveryMethod->delivery_method = $request['name'];
+        $deliveryMethod->status = $request['status'];
+        $deliveryMethod->update();
+
+        return Inertia::location(route('delivery.index'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(DeliveryMethod $deliveryMethod)
-    {
-        //
+    public function deactivate(DeliveryMethod $deliveryMethod) {
+        $deliveryMethod->status = 'inactive';
+        $deliveryMethod->save();
+        return Inertia::location(route('delivery.index'));
+    }
+
+    public function activate(DeliveryMethod $deliveryMethod) {
+        $deliveryMethod->status = 'active';
+        $deliveryMethod->save();
+        return Inertia::location(route('delivery.index'));
     }
 }
