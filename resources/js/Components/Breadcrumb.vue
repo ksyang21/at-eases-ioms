@@ -5,7 +5,6 @@ const props = defineProps({
     breadcrumbs: Object
 })
 
-console.log(props.breadcrumbs)
 const items = [
     {
         label: 'Home',

@@ -32,8 +32,6 @@ const props = defineProps({
                         </Link>
                     </div>
                     <div class="pt-3 pb-6 px-6">
-                        <div class="flex items-center">
-                        </div>
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">

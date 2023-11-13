@@ -10,7 +10,7 @@ import {FwbDropdown, FwbListGroup, FwbListGroupItem} from "flowbite-vue";
 const props = defineProps({
     orders: Object,
     delivery_methods: Object,
-    breadcrumbs : Object
+    breadcrumbs: Object
 })
 
 const Swal = inject('$swal')
@@ -19,6 +19,17 @@ let orders = ref(props.orders)
 let status = ref('all')
 let search = ref('')
 let deliveryMethod = ref('all')
+
+let totalOrderSales = ref(0.00)
+
+function calculateTotalOrderSales() {
+    totalOrderSales.value = 0.00
+    for (let order of orders.value) {
+        totalOrderSales.value += parseFloat(order.total_price)
+    }
+}
+
+calculateTotalOrderSales()
 
 function changeStatus(selectedStatus) {
     selectedStatus = selectedStatus.toLowerCase()
@@ -70,7 +81,7 @@ function cancelOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/cancel-order/${order.id}`)
         }
     })
@@ -82,7 +93,7 @@ function inTransitOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/in-transit-order/${order.id}`)
         }
     })
@@ -94,7 +105,7 @@ function returnOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/return-order/${order.id}`)
         }
     })
@@ -106,7 +117,7 @@ function completeOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/complete-order/${order.id}`)
         }
     })
@@ -118,7 +129,7 @@ function rejectOrder(order) {
         icon: 'info',
         showCancelButton: true
     }).then((result) => {
-        if(result.isConfirmed) {
+        if (result.isConfirmed) {
             router.put(`/reject-order/${order.id}`)
         }
     })
@@ -155,11 +166,26 @@ function rejectOrder(order) {
                         </div>
                     </div>
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
-                        <div class="md:flex items-center mb-3">
-                            <p class="text-2xl">{{ orders.length }} orders</p>
+                        <div class="md:flex md:items-center md:justify-end">
+                            <div id="search-bar">
+                                <label for="search" class="text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                        </svg>
+                                    </div>
+                                    <input type="search" id="search"
+                                           class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "
+                                           placeholder="Search Order ID" @keyup="searchOrder"
+                                           v-model="search">
+                                </div>
+                            </div>
                             <!--                            <VueDatePicker class="md:ml-auto mt-2 md:mt-0" range></VueDatePicker>-->
                             <fwb-dropdown text="Delivery Method" placement="bottom"
-                                          class="mt-2 md:mt-0 ml-auto w-full md:w-auto">
+                                          class="mt-2 md:mt-0 ml-0 md:ml-2 w-full md:w-auto">
                                 <template #trigger>
                                 <span
                                     class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2 flex items-center">
@@ -183,6 +209,44 @@ function rejectOrder(order) {
                                 <font-awesome-icon icon="plus-circle" class="mr-2"/>
                                 New Order
                             </Link>
+                        </div>
+                        <div class="py-6 block md:flex md:items-center">
+                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4">
+                                <div class="p-4 bg-yellow-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="circle-dollar-to-slot" class="text-lg text-yellow-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Total Orders</p>
+                                    <p class="text-2xl">{{orders.length}}</p>
+                                </div>
+                            </div>
+                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
+                                <div class="p-4 bg-blue-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-blue-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Total Sales (RM)</p>
+                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
+                                </div>
+                            </div>
+                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
+                                <div class="p-4 bg-red-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-red-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Today Sales (RM)</p>
+                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
+                                </div>
+                            </div>
+                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
+                                <div class="p-4 bg-green-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-green-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Sales Campaign Target</p>
+                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="md:flex md:items-center">
                             <div id="search-bar" class="w-full">
@@ -269,8 +333,11 @@ function rejectOrder(order) {
                                         <p>{{ order.customer.address }}</p>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <p>{{ order.delivery_method !== null ? order.delivery_method.delivery_method : '-' }}</p>
-                                        <span class="px-2 bg-blue-200 rounded-md text-sm text-black" v-if="order.delivery_method !== null">#{{ order.delivery_no }}</span>
+                                        <p>{{
+                                                order.delivery_method !== null ? order.delivery_method.delivery_method : '-'
+                                            }}</p>
+                                        <span class="px-2 bg-blue-200 rounded-md text-sm text-black"
+                                              v-if="order.delivery_method !== null">#{{ order.delivery_no }}</span>
                                     </td>
                                     <td class="px-6 py-4">
                                         <p class="font-semibold">RM{{ parseFloat(order.total_price).toFixed(2) }}</p>
@@ -285,23 +352,29 @@ function rejectOrder(order) {
                                                   class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1">
                                                 Details
                                             </Link>
-                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'in transit'" @click="completeOrder(order)"
+                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'in transit'"
+                                                               @click="completeOrder(order)"
                                                                class="ml-3 text-green-500 hover:text-green-900 order-action-btn"
                                                                title="Complete"/>
-                                            <font-awesome-icon icon="truck" v-if="order.status === 'approved'" @click="inTransitOrder(order)"
+                                            <font-awesome-icon icon="truck" v-if="order.status === 'approved'"
+                                                               @click="inTransitOrder(order)"
                                                                class="ml-3 text-blue-500 hover:text-blue-900 order-action-btn"
                                                                title="In Transit"/>
-                                            <font-awesome-icon icon="rotate-left" v-if="order.status === 'completed' || order.status === 'in transit'"
+                                            <font-awesome-icon icon="rotate-left"
+                                                               v-if="order.status === 'completed' || order.status === 'in transit'"
                                                                @click="returnOrder(order)"
                                                                class="ml-3 text-gray-600 hover:text-gray-900 order-action-btn"
                                                                title="Return"/>
-                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'pending'" @click="approveOrder(order)"
+                                            <font-awesome-icon icon="check-circle" v-if="order.status === 'pending'"
+                                                               @click="approveOrder(order)"
                                                                class="ml-3 text-green-600 hover:text-green-900 order-action-btn"
                                                                title="Approve"/>
-                                            <font-awesome-icon icon="times" @click="cancelOrder(order)" v-if="order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
+                                            <font-awesome-icon icon="times" @click="cancelOrder(order)"
+                                                               v-if="order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
                                                                title="Cancel"/>
-                                            <font-awesome-icon icon="ban" v-if="order.status === 'pending'" @click="rejectOrder(order)"
+                                            <font-awesome-icon icon="ban" v-if="order.status === 'pending'"
+                                                               @click="rejectOrder(order)"
                                                                class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
                                                                title="Rejected"/>
                                         </div>
