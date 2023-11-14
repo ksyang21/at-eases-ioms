@@ -28,21 +28,21 @@ function searchCampaign() {
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="px-6 pt-6">
+                    <div class="px-6 pt-6 pb-4">
                         <p class="text-sm">Ongoing Campaign</p>
                     </div>
                     <div class="flex items-center pb-6 mx-6 border-b-2 border-gray-100">
                         <div class="py-2.5 px-4 w-full shadow-sm" v-for="(campaign, index) in ongoing_campaigns"
                              :key="index">
                             <div class="md:flex md:items-center">
-                                <div class="flex flex-col">
-                                    <div class="text-3xl flex items-center mt-3">
+                                <p class="mt-3 md:mt-0 font-bold text-3xl">{{campaign.name}}</p>
+                                <div class="flex flex-col ml-auto">
+                                    <div class="text-3xl flex items-center mt-3 md:mt-0">
                                         <span>RM {{campaign.current_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}}</span>
                                         <span class="ml-3">of</span>
                                         <span class="ml-3 text-red-400">RM {{campaign.sales_target_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}}</span>
                                     </div>
                                 </div>
-                                <p class="mt-3 md:mt-0 text-2xl ml-auto">Campaign Name</p>
                             </div>
                             <ProgressBar
                                 :progress="10"
@@ -110,9 +110,9 @@ function searchCampaign() {
                                             v-if="moment(campaign.period_start).unix() < moment().unix() && moment(campaign.period_end) > moment().unix()"
                                             class="ml-2 py-1 px-1.5 bg-red-400 rounded-md text-white ">Ongoing</span>
                                     </th>
-                                    <td class="px-6 py-4">{{ campaign.period_start }} - {{ campaign.period_end }}</td>
-                                    <td class="px-6 py-4">{{ campaign.sales_target_amount }}</td>
-                                    <td class="px-6 py-4">{{ campaign.current_amount }}</td>
+                                    <td class="px-6 py-4">{{ moment(campaign.period_start).format('YYYY/MM/DD') }} - {{ moment(campaign.period_end).format('YYYY/MM/DD') }}</td>
+                                    <td class="px-6 py-4">RM {{ campaign.sales_target_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                                    <td class="px-6 py-4">RM {{ campaign.current_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                                     <td class="px-6 py-4">{{ campaign.total_product_sold }}</td>
                                 </tr>
                                 </tbody>
