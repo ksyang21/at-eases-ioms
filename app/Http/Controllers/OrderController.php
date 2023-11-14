@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryLog;
 use App\Models\OrderDetails;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Models\Order;
@@ -40,10 +41,22 @@ class OrderController extends Controller
                 $order['delivery_method'] = NULL;
             }
         }
+
+        // Get today orders
+        $today_orders       = Order::whereDate('created_at', Carbon::today())->get();
+        $today_order_amount = $today_orders->sum('total_price');
+
+        $earliest_order_date = Order::min('created_at');
+        $latest_order_date = Order::max('created_at');
+
         return Inertia::render('Order/Index', [
-            'delivery_methods' => $delivery_methods,
-            'orders'           => $orders,
-            'breadcrumbs'      => $breadcrumbs,
+            'delivery_methods'   => $delivery_methods,
+            'orders'             => $orders,
+            'breadcrumbs'        => $breadcrumbs,
+            'today_orders'       => $today_orders,
+            'today_order_amount' => $today_order_amount,
+            'earliest_order_date' => $earliest_order_date,
+            'latest_order_date' => $latest_order_date
         ]);
     }
 
@@ -52,7 +65,7 @@ class OrderController extends Controller
      */
     public function create(): \Inertia\Response
     {
-        $breadcrumbs      = [
+        $breadcrumbs = [
             [
                 'label' => 'Orders',
                 'link'  => 'orders.index',
@@ -80,9 +93,9 @@ class OrderController extends Controller
             $product['packages'] = $packages;
         }
         return Inertia::render('Order/Create', [
-            'products'  => $all_products,
-            'customers' => $customers,
-            'breadcrumbs' => $breadcrumbs
+            'products'    => $all_products,
+            'customers'   => $customers,
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -183,15 +196,15 @@ class OrderController extends Controller
             $delivery_method = NULL;
         }
 
-        $breadcrumbs      = [
+        $breadcrumbs = [
             [
                 'label' => 'Orders',
                 'link'  => 'orders.index',
             ],
             [
-                'label' => sprintf('Details (#%s)', $order->order_no),
-                'link'  => 'order.show',
-                'params' => $order->id
+                'label'  => sprintf('Details (#%s)', $order->order_no),
+                'link'   => 'order.show',
+                'params' => $order->id,
             ],
         ];
 
@@ -200,7 +213,7 @@ class OrderController extends Controller
             'seller'          => $seller,
             'customer'        => $customer,
             'delivery_method' => $delivery_method,
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs'     => $breadcrumbs,
         ]);
     }
 
@@ -243,16 +256,16 @@ class OrderController extends Controller
         $order_details = OrderDetails::where('order_id', $order->id)->get();
         foreach ($order_details as $detail) {
             $product_id = $detail->product_id;
-            $quantity = $detail->quantity;
+            $quantity   = $detail->quantity;
 
             InventoryLog::create([
                 'product_id'   => $product_id,
                 'quantity'     => $quantity,
                 'stock_status' => 'stock in',
-                'description'  => '#'.$order->order_no,
+                'description'  => '#' . $order->order_no,
             ]);
 
-            $product_item = Product::find($product_id);
+            $product_item                 = Product::find($product_id);
             $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
             $product_item->update();
         }
@@ -282,16 +295,16 @@ class OrderController extends Controller
         $order_details = OrderDetails::where('order_id', $order->id)->get();
         foreach ($order_details as $detail) {
             $product_id = $detail->product_id;
-            $quantity = $detail->quantity;
+            $quantity   = $detail->quantity;
 
             InventoryLog::create([
                 'product_id'   => $product_id,
                 'quantity'     => $quantity,
                 'stock_status' => 'stock in',
-                'description'  => '#'.$order->order_no,
+                'description'  => '#' . $order->order_no,
             ]);
 
-            $product_item = Product::find($product_id);
+            $product_item                 = Product::find($product_id);
             $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
             $product_item->update();
         }
@@ -306,16 +319,16 @@ class OrderController extends Controller
         $order_details = OrderDetails::where('order_id', $order->id)->get();
         foreach ($order_details as $detail) {
             $product_id = $detail->product_id;
-            $quantity = $detail->quantity;
+            $quantity   = $detail->quantity;
 
             InventoryLog::create([
                 'product_id'   => $product_id,
                 'quantity'     => $quantity,
                 'stock_status' => 'stock in',
-                'description'  => '#'.$order->order_no,
+                'description'  => '#' . $order->order_no,
             ]);
 
-            $product_item = Product::find($product_id);
+            $product_item                 = Product::find($product_id);
             $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
             $product_item->update();
         }

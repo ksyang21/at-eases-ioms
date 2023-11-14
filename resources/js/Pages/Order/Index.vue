@@ -11,57 +11,87 @@ import moment from "moment/moment.js";
 const props = defineProps({
     orders: Object,
     delivery_methods: Object,
-    breadcrumbs: Object
+    breadcrumbs: Object,
+    today_orders: Object,
+    today_order_amount: Number,
+    earliest_order_date: String,
+    latest_order_date: String,
 })
 
 const Swal = inject('$swal')
 
 let orders = ref(props.orders)
+
 let status = ref('all')
 let search = ref('')
 let deliveryMethod = ref('all')
 
-let totalOrderSales = ref(0.00)
+let startDate = ref(new Date(props.earliest_order_date))
+let endDate = ref(new Date(props.latest_order_date))
+let date = ref([startDate.value, endDate.value])
 
+const formatDate = ([date1, date2]) => {
+    const startDay = date1.getDate()
+    const startMonth = date1.getMonth() + 1
+    const startYear = date1.getFullYear()
+    if(!date2) {
+        return `${startDay}/${startMonth}/${startYear}`
+    }
+    const endDay = date2.getDate()
+    const endMonth = date2.getMonth() + 1
+    const endYear = date2.getFullYear()
+
+    return `${startDay}/${startMonth}/${startYear} - ${endDay}/${endMonth}/${endYear}`
+}
+
+
+let totalOrderSales = ref(0.00)
 function calculateTotalOrderSales() {
     totalOrderSales.value = 0.00
     for (let order of orders.value) {
         totalOrderSales.value += parseFloat(order.total_price)
     }
 }
-
 calculateTotalOrderSales()
+
+
+
+function filterOrders() {
+    let filterStartDate = date.value[0].setHours(0,0,0,0)
+    let filterEndDate = date.value[1].setHours(23,59,59,59)
+    orders.value = props.orders.filter((order) => {
+        const orderNoFilter = search.value !== '' ? order.order_no.toLowerCase().includes(search.value) : true
+        const deliveryFilter = deliveryMethod.value !== 'all' ? order.delivery_method_id === deliveryMethod.value.id : true
+        const statusFilter = status.value !== 'all' ? order.status === status.value : true
+        const dateFilter = moment(filterStartDate).unix() !== moment(startDate.value).unix() || moment(filterEndDate).unix() !== moment(endDate.value).unix() ? moment(order.created_at).unix() >= moment(filterStartDate).unix() && moment(order.created_at).unix() <= moment(filterEndDate).unix() : true
+        return orderNoFilter && deliveryFilter && statusFilter && dateFilter
+    })
+}
 
 function changeStatus(selectedStatus) {
     selectedStatus = selectedStatus.toLowerCase()
     status.value = selectedStatus
-    if (selectedStatus !== 'all') {
-        orders.value = props.orders.filter((order) => {
-            return order.status.toLowerCase() === selectedStatus
-        })
-    } else {
-        orders.value = props.orders
-    }
-}
-
-function searchOrder() {
-    if (search.value !== '') {
-        orders.value = props.orders.filter((order) => {
-            return order.order_no.toString().toLowerCase().includes(search.value)
-        })
-    } else {
-        if (status.value !== 'all') {
-            changeStatus(status.value)
-        } else {
-            orders.value = props.orders
-        }
-    }
+    filterOrders()
+    // if (selectedStatus !== 'all') {
+    //     orders.value = props.orders.filter((order) => {
+    //         return order.status.toLowerCase() === selectedStatus
+    //     })
+    // } else {
+    //     orders.value = props.orders
+    // }
 }
 
 function filterByDeliveryMethod(methodID) {
-    orders.value = props.orders.filter((order) => {
-        return parseInt(order.delivery_method_id) === parseInt(methodID)
-    })
+    if (methodID > 0) {
+        deliveryMethod.value = props.delivery_methods.find((option) => {
+            return option.id === methodID
+        })
+        filterOrders()
+    } else {
+        deliveryMethod.value = 'all'
+        filterOrders()
+    }
+    calculateTotalOrderSales()
 }
 
 function approveOrder(order) {
@@ -135,6 +165,10 @@ function rejectOrder(order) {
         }
     })
 }
+
+function changeDate() {
+    filterOrders()
+}
 </script>
 
 <template>
@@ -167,7 +201,7 @@ function rejectOrder(order) {
                         </div>
                     </div>
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
-                        <div class="md:flex md:items-center md:justify-end">
+                        <div class="md:flex md:items-center mt-3">
                             <div id="search-bar">
                                 <label for="search" class="text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
                                 <div class="relative">
@@ -180,11 +214,21 @@ function rejectOrder(order) {
                                     </div>
                                     <input type="search" id="search"
                                            class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "
-                                           placeholder="Search Order ID" @keyup="searchOrder"
+                                           placeholder="Search Order ID" @keyup="filterOrders"
                                            v-model="search">
                                 </div>
                             </div>
-                            <!--                            <VueDatePicker class="md:ml-auto mt-2 md:mt-0" range></VueDatePicker>-->
+                            <VueDatePicker
+                                class="md:ml-auto mt-2 md:mt-0 min-w-[350px]"
+                                range
+                                v-model="date"
+                                :min-date="startDate"
+                                :max-date="endDate"
+                                :format="formatDate"
+                                :enable-time-picker="false"
+                                :clearable="false"
+                                @update:model-value="changeDate"
+                            />
                             <fwb-dropdown text="Delivery Method" placement="bottom"
                                           class="mt-2 md:mt-0 ml-0 md:ml-2 w-full md:w-auto">
                                 <template #trigger>
@@ -195,6 +239,7 @@ function rejectOrder(order) {
                                 </span>
                                 </template>
                                 <fwb-list-group>
+                                    <fwb-list-group-item @click="filterByDeliveryMethod(0)">All</fwb-list-group-item>
                                     <fwb-list-group-item v-for="(method, index) in delivery_methods" :key="index"
                                                          @click="filterByDeliveryMethod(method.id)">
                                         {{ method.delivery_method }}
@@ -212,61 +257,82 @@ function rejectOrder(order) {
                             </Link>
                         </div>
                         <div class="py-6 block md:flex md:items-center">
-                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4">
+                            <div
+                                class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4">
+                                <div class="p-4 bg-red-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="boxes" class="text-lg text-red-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Today Orders</p>
+                                    <p class="text-2xl">{{ today_orders.length }}</p>
+                                </div>
+                            </div>
+                            <div
+                                class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
+                                <div class="p-4 bg-red-100 flex items-center justify-center rounded-xl">
+                                    <font-awesome-icon icon="money-bill-1" class="text-lg text-red-500"/>
+                                </div>
+                                <div class="flex flex-col ml-4 items-end w-full">
+                                    <p class="text-gray-600 text-xl">Today Sales (RM)</p>
+                                    <p class="text-2xl">{{
+                                            today_order_amount.toLocaleString(undefined, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })
+                                        }}</p>
+                                </div>
+                            </div>
+                            <div
+                                class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
                                 <div class="p-4 bg-yellow-100 flex items-center justify-center rounded-xl">
                                     <font-awesome-icon icon="circle-dollar-to-slot" class="text-lg text-yellow-500"/>
                                 </div>
                                 <div class="flex flex-col ml-4 items-end w-full">
                                     <p class="text-gray-600 text-xl">Total Orders</p>
-                                    <p class="text-2xl">{{orders.length}}</p>
+                                    <p class="text-2xl">{{ orders.length }}</p>
                                 </div>
                             </div>
-                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
+                            <div
+                                class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
                                 <div class="p-4 bg-blue-100 flex items-center justify-center rounded-xl">
-                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-blue-500"/>
+                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-blue-500"
+                                                       v-if="deliveryMethod === 'all'"/>
+                                    <font-awesome-icon icon="truck-fast" class="text-lg text-blue-500" v-else/>
                                 </div>
                                 <div class="flex flex-col ml-4 items-end w-full">
-                                    <p class="text-gray-600 text-xl">Total Sales (RM)</p>
-                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
-                                </div>
-                            </div>
-                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
-                                <div class="p-4 bg-red-100 flex items-center justify-center rounded-xl">
-                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-red-500"/>
-                                </div>
-                                <div class="flex flex-col ml-4 items-end w-full">
-                                    <p class="text-gray-600 text-xl">Today Sales (RM)</p>
-                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
-                                </div>
-                            </div>
-                            <div class="py-4 px-6 rounded-lg shadow-sm flex items-center border-2 border-gray-100 md:w-1/4 mt-3 md:mt-0 ml-0 md:ml-3">
-                                <div class="p-4 bg-green-100 flex items-center justify-center rounded-xl">
-                                    <font-awesome-icon icon="sack-dollar" class="text-lg text-green-500"/>
-                                </div>
-                                <div class="flex flex-col ml-4 items-end w-full">
-                                    <p class="text-gray-600 text-xl">Sales Campaign Target</p>
-                                    <p class="text-2xl">{{totalOrderSales.toFixed(2)}}</p>
+                                    <p class="text-gray-600 text-xl" v-if="deliveryMethod === 'all'">Total Sales
+                                        (RM)</p>
+                                    <p class="text-gray-600 text-xl" v-else>Sales By Delivery (RM)</p>
+                                    <p class="text-2xl">{{
+                                            totalOrderSales.toLocaleString(undefined, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })
+                                        }}</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="md:flex md:items-center">
-                            <div id="search-bar" class="w-full">
-                                <label for="search" class="text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                        </svg>
-                                    </div>
-                                    <input type="search" id="search"
-                                           class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "
-                                           placeholder="Search Order ID" @keyup="searchOrder"
-                                           v-model="search">
-                                </div>
-                            </div>
+                        <div v-if="deliveryMethod !== 'all'">
+                            Selected Delivery : <span class="text-gray-400">{{ deliveryMethod.delivery_method }}</span>
                         </div>
+                        <!--                        <div class="md:flex md:items-center">-->
+                        <!--                            <div id="search-bar" class="w-full">-->
+                        <!--                                <label for="search" class="text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>-->
+                        <!--                                <div class="relative">-->
+                        <!--                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">-->
+                        <!--                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"-->
+                        <!--                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">-->
+                        <!--                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"-->
+                        <!--                                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>-->
+                        <!--                                        </svg>-->
+                        <!--                                    </div>-->
+                        <!--                                    <input type="search" id="search"-->
+                        <!--                                           class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "-->
+                        <!--                                           placeholder="Search Order ID" @keyup="searchOrder"-->
+                        <!--                                           v-model="search">-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
@@ -302,7 +368,8 @@ function rejectOrder(order) {
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <p class="font-semibold"># {{ order.order_no }}</p>
-                                        <p class="font-thin text-sm text-gray-600">{{ moment(order.created_at).format('YYYY-MM-DD HH:mm:ss') }}</p>
+                                        <p class="font-thin text-sm text-gray-600">
+                                            {{ moment(order.created_at).format('YYYY-MM-DD HH:mm:ss') }}</p>
                                     </th>
                                     <td scope="row" class="px-6 py-4 font-semibold text-xs">
                                         <p v-if="order.status === 'approved'" class="text-green-600">
