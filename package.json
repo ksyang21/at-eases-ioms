@@ -29,6 +29,7 @@
         "flowbite-vue": "^0.1.0",
         "moment": "^2.29.4",
         "vue-chartjs": "^5.2.0",
+        "vue-select": "^4.0.0-beta.6",
         "vue-sweetalert2": "^5.0.5"
     }
 }

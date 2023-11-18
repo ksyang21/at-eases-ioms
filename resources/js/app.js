@@ -1,6 +1,7 @@
 import './bootstrap';
 import '../css/app.css';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import 'vue-select/dist/vue-select.css';
 
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
@@ -13,6 +14,11 @@ import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import {fas} from '@fortawesome/free-solid-svg-icons';
+
+/**
+ * Vue-select
+ */
+import vSelect from 'vue-select';
 
 /**
  * Vue3 Datepicker
@@ -37,6 +43,7 @@ createInertiaApp({
             .use(plugin)
             .component('font-awesome-icon', FontAwesomeIcon)
             .component('VueDatePicker', VueDatePicker)
+            .component('VueSelect', vSelect)
             .use(ZiggyVue, Ziggy)
             .use(VueSweetalert2)
             .mount(el);
