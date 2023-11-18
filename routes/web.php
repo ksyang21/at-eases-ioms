@@ -94,6 +94,8 @@ Route::middleware('auth')->group(function () {
      * Campaigns
      */
     Route::get('/campaigns', [SalesCampaignController::class, 'index'])->name('campaigns.index');
+    Route::get('/add-campaign', [SalesCampaignController::class, 'create'])->name('campaign.create');
+    Route::post('/campaign', [SalesCampaignController::class, 'store'])->name('campaign.store');
 });
 
 Route::get('/inventory', function () {

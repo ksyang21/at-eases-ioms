@@ -4,7 +4,7 @@ import {Head, Link} from '@inertiajs/vue3';
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "vue";
-import {Line} from 'vue-chartjs'
+import {Bar} from 'vue-chartjs'
 import {Chart} from 'chart.js/auto'
 import ProgressBar from "@/Components/ProgressBar.vue";
 
@@ -95,7 +95,7 @@ function hideAnnouncement() {
                         </div>
                     </div>
                     <div class="py-4 px-16">
-                        <Line :data="chartData" class="max-h-[400px]"/>
+                        <Bar :data="chartData" class="max-h-[400px]"/>
                     </div>
                 </div>
                 <div class="bg-white h-[500px] rounded-2xl w-full md:w-1/3 mx-3">

@@ -54,9 +54,10 @@ function searchCampaign() {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-3">
                     <div class="p-6">
                         <div class="md:flex md:items-center mb-4">
-                            <p class="text-xl mb-3 md:mb-0">{{ campaigns.length }} Campaign
-                                record{{ campaigns.length > 1 ? 's' : '' }}</p>
-                            <Link :href="route('campaigns.index')"
+                            <p class="text-xl mb-3 md:mb-0">
+                                {{ campaigns.length }} Campaign record{{ campaigns.length > 1 ? 's' : '' }}
+                            </p>
+                            <Link :href="route('campaign.create')"
                                   class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2 w-full md:w-auto mt-3 md:mt-0 md:ml-auto md:flex md:items-center w-full">
                                 <font-awesome-icon icon="plus-circle" class="mr-2"/>
                                 New Campaign
@@ -106,9 +107,9 @@ function searchCampaign() {
                                 <tr v-for="(campaign, index) in campaigns" :key="index">
                                     <th class="px-6 py-4">
                                         {{ campaign.name }}
-                                        <span
-                                            v-if="moment(campaign.period_start).unix() < moment().unix() && moment(campaign.period_end) > moment().unix()"
+                                        <span v-if="moment(campaign.period_start).unix() < moment().unix() && moment(campaign.period_end) > moment().unix()"
                                             class="ml-2 py-1 px-1.5 bg-red-400 rounded-md text-white ">Ongoing</span>
+                                        <span v-if="moment(campaign.period_start).unix() > moment().unix()" class="ml-2 py-1 px-1.5 bg-blue-400 rounded-md text-white">Upcoming</span>
                                     </th>
                                     <td class="px-6 py-4">{{ moment(campaign.period_start).format('YYYY/MM/DD') }} - {{ moment(campaign.period_end).format('YYYY/MM/DD') }}</td>
                                     <td class="px-6 py-4">RM {{ campaign.sales_target_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
