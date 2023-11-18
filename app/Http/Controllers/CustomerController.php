@@ -4,15 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
-        //
+        $breadcrumbs = [
+            [
+                'label' => 'Customers',
+                'link'  => 'customers.index',
+            ],
+        ];
+
+        $customers = Customer::all();
+
+        return Inertia::render('Customer/Index', [
+            'breadcrumbs' => $breadcrumbs,
+            'customers' => $customers
+        ]);
     }
 
     /**
@@ -20,7 +33,6 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**

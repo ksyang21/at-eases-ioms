@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryMethodController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
@@ -96,6 +97,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/campaigns', [SalesCampaignController::class, 'index'])->name('campaigns.index');
     Route::get('/add-campaign', [SalesCampaignController::class, 'create'])->name('campaign.create');
     Route::post('/campaign', [SalesCampaignController::class, 'store'])->name('campaign.store');
+
+    /**
+     * Customers
+     */
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/add-customer', [CustomerController::class, 'create'])->name('customer.create');
 });
 
 Route::get('/inventory', function () {
