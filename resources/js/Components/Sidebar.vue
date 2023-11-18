@@ -31,7 +31,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
                     Campaign
                 </Link>
             </li>
-            <li class="nav-item" :class="route().current('customers.index')  ? 'active-link' : ''">
+            <li class="nav-item" :class="route().current('customers.index') || route().current('customer.create')  ? 'active-link' : ''">
                 <Link :href="route('customers.index')" :active="route().current('customers.index')" class="nav-link">
                     <font-awesome-icon icon="sitemap" class="mx-1"/>
                     Customers

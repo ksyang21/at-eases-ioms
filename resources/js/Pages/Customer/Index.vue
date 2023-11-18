@@ -41,6 +41,9 @@ const props = defineProps({
 										Name
 									</th>
 									<th scope="col" class="px-6 py-3">
+										Seller
+									</th>
+									<th scope="col" class="px-6 py-3">
 										Phone
 									</th>
 									<th scope="col" class="px-6 py-3">
@@ -63,6 +66,9 @@ const props = defineProps({
 										<p class="text-gray-600 text-sm">{{ customer.address }}</p>
 									</th>
 									<td class="px-6 py-4">
+										{{ customer.seller.name }}
+									</td>
+									<td class="px-6 py-4">
 										{{ customer.phone }}
 									</td>
 									<td class="px-6 py-4">
@@ -72,8 +78,8 @@ const props = defineProps({
 										{{moment(customer.created_at).format('YYYY-MM-DD')}}
 									</td>
 									<td class="px-6 py-4">
-										<font-awesome-icon icon="pen-to-square" class="ml-2"/>
-										<font-awesome-icon icon="trash" class="ml-2 text-red-600"/>
+										<font-awesome-icon icon="pen-to-square" class=" action-btn"/>
+										<font-awesome-icon icon="trash" class="ml-6 text-red-600 action-btn"/>
 									</td>
 								</tr>
 								</tbody>
@@ -93,5 +99,7 @@ const props = defineProps({
 </template>
 
 <style scoped>
-
+.action-btn {
+	font-size: 20px;
+}
 </style>

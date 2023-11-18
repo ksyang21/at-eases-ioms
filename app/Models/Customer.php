@@ -18,4 +18,9 @@ class Customer extends Model
         'phone',
         'email'
     ];
+
+    public function seller(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'seller_id');
+    }
 }

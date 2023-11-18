@@ -87,7 +87,7 @@ function hideAnnouncement() {
                         <div class="ml-auto">
                             <span class="bg-blue-200 px-3 py-1 rounded cursor-pointer hover:bg-blue-400">Daily</span>
                             <span
-                                class="bg-blue-200 px-3 py-1 rounded cursor-pointer hover:bg-blue-400 ml-2 border-2 border-blue-700">Weekly</span>
+                                class="bg-blue-700 px-3 py-1 rounded cursor-pointer hover:bg-blue-400 ml-2 text-white">Weekly</span>
                             <span
                                 class="bg-blue-200 px-3 py-1 rounded cursor-pointer hover:bg-blue-400 ml-2">Monthly</span>
                             <span

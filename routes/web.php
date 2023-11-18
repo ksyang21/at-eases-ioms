@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/add-customer', [CustomerController::class, 'create'])->name('customer.create');
+    Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
 });
 
 Route::get('/inventory', function () {
