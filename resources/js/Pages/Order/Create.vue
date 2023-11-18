@@ -348,7 +348,7 @@ function removeProduct(product) {
                                     <button class="w-full bg-blue-500 text-white rounded-md py-1"
                                             @click="addToCart" type="button">
                                         <font-awesome-icon icon="plus-circle" class="mr-2"/>
-                                        Add to Cart
+                                        Add Item
                                     </button>
                                 </div>
                             </div>
