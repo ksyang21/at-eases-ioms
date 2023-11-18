@@ -85,7 +85,7 @@ const props = defineProps({
 								</tbody>
 								<tbody v-else>
 								<tr>
-									<td colspan="4" class="px-6 py-4 text-center">No package available</td>
+									<td colspan="4" class="px-6 py-4 text-center">No customer available</td>
 								</tr>
 								</tbody>
 							</table>
