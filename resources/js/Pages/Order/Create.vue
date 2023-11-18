@@ -247,7 +247,7 @@ function removeProduct(product) {
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
-                        <p class="text-2xl">Create New Order</p>
+                        <p class="text-2xl">New Order</p>
                         <p class="text-2xl ml-auto hidden md:flex">
                             Total : RM {{ totalPrice.toFixed(2) }}
                         </p>
