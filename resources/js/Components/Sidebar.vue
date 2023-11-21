@@ -66,6 +66,12 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 					Delivery Method
 				</Link>
 			</li>
+            <li class="nav-item" :class="route().current('delivery.index') ? 'active-link' : ''">
+                <Link :href="route('delivery.index')" :active="route().current('delivery.index')" class="nav-link">
+                    <font-awesome-icon icon="volume-high" class="mx-1"/>
+                    Announcements
+                </Link>
+            </li>
 		</ul>
 	</aside>
 </template>
