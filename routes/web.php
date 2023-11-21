@@ -8,6 +8,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesCampaignController;
+use App\Http\Controllers\SellerController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -104,6 +105,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/add-customer', [CustomerController::class, 'create'])->name('customer.create');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
+
+    /**
+     * Sellers
+     */
+    Route::get('/sellers', [SellerController::class, 'index'])->name('sellers.index');
+    Route::get('/add-seller', [SellerController::class, 'create'])->name('seller.create');
+    Route::post('/seller', [SellerController::class, 'store'])->name('seller.store');
 });
 
 Route::get('/inventory', function () {
