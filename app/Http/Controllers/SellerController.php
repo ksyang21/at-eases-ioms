@@ -18,7 +18,7 @@ class SellerController extends Controller
     {
         $breadcrumbs = [
             [
-                'label' => 'Sellers',
+                'label' => 'Dealers',
                 'link'  => 'sellers.index',
             ],
         ];
@@ -36,11 +36,11 @@ class SellerController extends Controller
     {
         $breadcrumbs = [
             [
-                'label' => 'Sellers',
+                'label' => 'Dealers',
                 'link'  => 'sellers.index',
             ],
             [
-                'label' => 'New Seller',
+                'label' => 'New Dealer',
                 'link'  => 'seller.create',
             ],
         ];

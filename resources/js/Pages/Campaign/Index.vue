@@ -27,7 +27,7 @@ function searchCampaign() {
         <Breadcrumb :breadcrumbs="breadcrumbs"></Breadcrumb>
         <div class="py-0">
             <div class="mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" v-if="ongoing_campaigns.length > 0">
                     <div class="px-6 pt-6 pb-4">
                         <p class="text-sm">Ongoing Campaign</p>
                     </div>

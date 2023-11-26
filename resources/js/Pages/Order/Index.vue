@@ -34,7 +34,7 @@ const formatDate = ([date1, date2]) => {
     const startDay = date1.getDate()
     const startMonth = date1.getMonth() + 1
     const startYear = date1.getFullYear()
-    if(!date2) {
+    if (!date2) {
         return `${startDay}/${startMonth}/${startYear}`
     }
     const endDay = date2.getDate()
@@ -46,19 +46,20 @@ const formatDate = ([date1, date2]) => {
 
 
 let totalOrderSales = ref(0.00)
+
 function calculateTotalOrderSales() {
     totalOrderSales.value = 0.00
     for (let order of orders.value) {
         totalOrderSales.value += parseFloat(order.total_price)
     }
 }
+
 calculateTotalOrderSales()
 
 
-
 function filterOrders() {
-    let filterStartDate = date.value[0].setHours(0,0,0,0)
-    let filterEndDate = date.value[1].setHours(23,59,59,59)
+    let filterStartDate = date.value[0].setHours(0, 0, 0, 0)
+    let filterEndDate = date.value[1].setHours(23, 59, 59, 59)
     orders.value = props.orders.filter((order) => {
         const orderNoFilter = search.value !== '' ? order.order_no.toLowerCase().includes(search.value) : true
         const deliveryFilter = deliveryMethod.value !== 'all' ? order.delivery_method_id === deliveryMethod.value.id : true
@@ -168,6 +169,27 @@ function rejectOrder(order) {
 
 function changeDate() {
     filterOrders()
+}
+
+/**
+ * Bulk selection
+ */
+let multiselectMode = ref(false)
+let multiselectStatus = ref('')
+let multiselected = reactive({
+    orders: []
+})
+function toggleMultiselect() {
+    multiselectMode.value = !multiselectMode.value
+}
+
+function selectRow(order) {
+    multiselected.orders.push(order)
+    multiselectStatus.value = order.status
+}
+
+function confirmMultiselect() {
+    console.log(multiselected)
 }
 </script>
 
@@ -315,30 +337,20 @@ function changeDate() {
                         <div v-if="deliveryMethod !== 'all'">
                             Selected Delivery : <span class="text-gray-400">{{ deliveryMethod.delivery_method }}</span>
                         </div>
-                        <!--                        <div class="md:flex md:items-center">-->
-                        <!--                            <div id="search-bar" class="w-full">-->
-                        <!--                                <label for="search" class="text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>-->
-                        <!--                                <div class="relative">-->
-                        <!--                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">-->
-                        <!--                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"-->
-                        <!--                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">-->
-                        <!--                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"-->
-                        <!--                                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>-->
-                        <!--                                        </svg>-->
-                        <!--                                    </div>-->
-                        <!--                                    <input type="search" id="search"-->
-                        <!--                                           class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "-->
-                        <!--                                           placeholder="Search Order ID" @keyup="searchOrder"-->
-                        <!--                                           v-model="search">-->
-                        <!--                                </div>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
+                        <div class="md:flex md:items-center">
+                            <button type="button" @click="toggleMultiselect"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                Bulk Select
+                            </button>
+                            <button @click="confirmMultiselect">Confirm</button>
+                        </div>
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
                                 <thead
                                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
+                                    <th></th>
                                     <th scope="col" class="px-6 py-3">
                                         Order No.
                                     </th>
@@ -364,7 +376,11 @@ function changeDate() {
                                 </thead>
                                 <tbody v-if="orders.length > 0">
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                    v-for="(order, index) in orders" :key="index">
+                                    v-for="(order, index) in orders" :key="index" @click="selectRow(order)">
+                                    <td class="px-6 py-4">
+                                        <input type="checkbox" :key="index" :value="order.id" v-show="multiselectMode"
+                                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2">
+                                    </td>
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <p class="font-semibold"># {{ order.order_no }}</p>

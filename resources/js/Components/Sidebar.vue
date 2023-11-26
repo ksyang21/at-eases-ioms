@@ -44,14 +44,14 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 				:class="route().current('customers.index') || route().current('customer.create')  ? 'active-link' : ''">
 				<Link :href="route('customers.index')" :active="route().current('customers.index')" class="nav-link">
 					<font-awesome-icon icon="sitemap" class="mx-1"/>
-					Customers
+					Customer
 				</Link>
 			</li>
 			<li class="nav-item"
 				:class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
 				<Link :href="route('sellers.index')" :active="route().current('sellers.index')" class="nav-link">
 					<font-awesome-icon icon="users" class="mx-1"/>
-					Dealers
+					Dealer
 				</Link>
 			</li>
 		</ul>
@@ -60,6 +60,12 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 			Settings
 		</p>
 		<ul>
+			<li class="nav-item" :class="route().current('postages.index') ? 'active-link' : ''">
+				<Link :href="route('postages.index')" :active="route().current('postages.index')" class="nav-link">
+					<font-awesome-icon icon="location-dot" class="mx-1"/>
+					Postage
+				</Link>
+			</li>
 			<li class="nav-item" :class="route().current('delivery.index') ? 'active-link' : ''">
 				<Link :href="route('delivery.index')" :active="route().current('delivery.index')" class="nav-link">
 					<font-awesome-icon icon="truck" class="mx-1"/>
@@ -69,7 +75,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
             <li class="nav-item" :class="route().current('delivery.index') ? 'active-link' : ''">
                 <Link :href="route('delivery.index')" :active="route().current('delivery.index')" class="nav-link">
                     <font-awesome-icon icon="volume-high" class="mx-1"/>
-                    Announcements
+                    Announcement
                 </Link>
             </li>
 		</ul>

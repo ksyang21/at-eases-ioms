@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Package;
 use App\Models\PackageProduct;
+use App\Models\Postage;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -151,11 +152,46 @@ class DatabaseSeeder extends Seeder
 //                'price'      => 50,
 //            ]);
 //        }
-        // \App\Models\User::factory(10)->create();
+         User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        /**
+         * Postage
+         */
+        $postage_details = [
+            [
+                'area' => 'Skudai',
+                'postcode' => '81300',
+                'delivery_fee' => '5.00'
+            ],
+            [
+                'area' => 'Johor Bahru',
+                'postcode' => '81200',
+                'delivery_fee' => '6.00'
+            ],
+            [
+                'area' => 'Kulai',
+                'postcode' => '81030',
+                'delivery_fee' => '7.00'
+            ],
+            [
+                'area' => 'Kluang',
+                'postcode' => '86000',
+                'delivery_fee' => '10.00'
+            ],
+            [
+                'area' => 'Bangsar',
+                'postcode' => '59000',
+                'delivery_fee' => '0.00'
+            ],
+        ];
+
+        foreach($postage_details as $detail) {
+            Postage::create($detail);
+        }
     }
 }

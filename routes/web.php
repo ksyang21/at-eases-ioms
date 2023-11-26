@@ -5,6 +5,7 @@ use App\Http\Controllers\DeliveryMethodController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\PostageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesCampaignController;
@@ -112,6 +113,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/sellers', [SellerController::class, 'index'])->name('sellers.index');
     Route::get('/add-seller', [SellerController::class, 'create'])->name('seller.create');
     Route::post('/seller', [SellerController::class, 'store'])->name('seller.store');
+
+    /**
+     * Postage
+     */
+    Route::get('/postages', [PostageController::class, 'index'])->name('postages.index');
 });
 
 Route::get('/inventory', function () {
