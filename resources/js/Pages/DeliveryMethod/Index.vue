@@ -121,7 +121,7 @@ function saveEditDeliveryMethod() {
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
-                        <p class="text-xl">Delivery Method Settings</p>
+                        <p class="text-2xl font-bold">Delivery Method Settings</p>
                         <button @click="openNewDeliveryModal"
                                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 ml-auto flex items-center">
                             <font-awesome-icon icon="plus-circle" class="mr-2"/>
@@ -154,9 +154,9 @@ function saveEditDeliveryMethod() {
                                         <p class="font-semibold">{{ option.delivery_method }}</p>
                                     </th>
                                     <td class="px-6 py-4">
-                                        <span class="py-1 px-4 bg-green-300 text-green-700 rounded-lg"
+                                        <span class="py-0.5 px-4 bg-green-300 text-green-700 rounded-lg"
                                               v-if="option.status === 'active'">{{ option.status.toUpperCase() }}</span>
-                                        <span class="py-1 px-4 bg-red-300 text-red-700 rounded-lg"
+                                        <span class="py-0.5 px-4 bg-red-300 text-red-700 rounded-lg"
                                               v-else>{{ option.status.toUpperCase() }}</span>
                                     </td>
                                     <td class="px-6 py-4 flex items-center">
