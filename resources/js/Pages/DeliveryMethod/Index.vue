@@ -204,7 +204,7 @@ function saveEditDeliveryMethod() {
         <div v-if="isModalOpen" class="fixed inset-0 bg-gray-800 bg-opacity-50"></div>
         <div id="newDeliveryMethodModal" class="w-full md:w-1/3 hidden fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
             <div class="top-0 p-6 border-b-2 border-gray-100 flex items-center">
-                <p class="text-2xl">Create New Option</p>
+                <p class="text-2xl">Create New Delivery Method</p>
                 <button class="text-red-600 ml-auto" @click="closeModal">
                     <font-awesome-icon icon="times-circle"/>
                 </button>
