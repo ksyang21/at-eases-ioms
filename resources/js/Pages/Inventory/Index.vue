@@ -88,7 +88,7 @@ function showImage() {
                             </div>
                         </div>
                         <div v-show="!listView" class="md:flex md:items-center w-full">
-                            <div class="grid gap-3 mb-6 md:grid-cols-4 xl:grid-cols-6" v-if="products.length > 0">
+                            <div class="grid gap-3 mb-6 md:grid-cols-4 xl:grid-cols-5" v-if="products.length > 0">
                                 <div
                                     class="flex flex-col rounded-lg w-full h-full mt-2 md:mt-0 product-card border-2 border-gray-100"
                                     :class="product.status === 'inactive' ? 'bg-gray-300' : ''"
