@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryMethodController;
 use App\Http\Controllers\InventoryLogController;
@@ -118,6 +119,14 @@ Route::middleware('auth')->group(function () {
      * Postage
      */
     Route::get('/postages', [PostageController::class, 'index'])->name('postages.index');
+
+    /**
+     * Announcement
+     */
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::put('/activate-announcement/{announcement}', [AnnouncementController::class, 'activateAnnouncement'])->name('announcement.activate');
+    Route::put('/deactivate-announcement/{announcement}', [AnnouncementController::class, 'deactivateAnnouncement'])->name('announcement.deactivate');
+    Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
 });
 
 Route::get('/inventory', function () {

@@ -123,4 +123,8 @@ class SellerController extends Controller
     {
         //
     }
+
+    public function deactivateSeller(User $user) {
+
+    }
 }

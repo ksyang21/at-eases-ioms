@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Http\Controllers\OrderDetailsController;
+use App\Models\Announcement;
+use App\Models\AnnouncementCategory;
 use App\Models\Customer;
 use App\Models\DeliveryMethod;
 use App\Models\Order;
@@ -61,8 +63,8 @@ class DatabaseSeeder extends Seeder
                 'name'      => 'Customer ' . $i,
                 'address'   => fake()->address,
                 'seller_id' => 1,
-                'phone' => fake()->phoneNumber(),
-                'email' => fake()->email()
+                'phone'     => fake()->phoneNumber(),
+                'email'     => fake()->email(),
             ]);
         }
 
@@ -74,7 +76,7 @@ class DatabaseSeeder extends Seeder
                 'description'    => fake()->text(),
                 'pv'             => 10,
                 'price'          => fake()->randomFloat(2, 0, 30),
-                'stock_quantity' => rand(50,300),
+                'stock_quantity' => rand(50, 300),
                 'status'         => 'active',
             ]);
         }
@@ -152,7 +154,7 @@ class DatabaseSeeder extends Seeder
 //                'price'      => 50,
 //            ]);
 //        }
-         User::factory(10)->create();
+        User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -164,34 +166,53 @@ class DatabaseSeeder extends Seeder
          */
         $postage_details = [
             [
-                'area' => 'Skudai',
-                'postcode' => '81300',
-                'delivery_fee' => '5.00'
+                'area'         => 'Skudai',
+                'postcode'     => '81300',
+                'delivery_fee' => '5.00',
             ],
             [
-                'area' => 'Johor Bahru',
-                'postcode' => '81200',
-                'delivery_fee' => '6.00'
+                'area'         => 'Johor Bahru',
+                'postcode'     => '81200',
+                'delivery_fee' => '6.00',
             ],
             [
-                'area' => 'Kulai',
-                'postcode' => '81030',
-                'delivery_fee' => '7.00'
+                'area'         => 'Kulai',
+                'postcode'     => '81030',
+                'delivery_fee' => '7.00',
             ],
             [
-                'area' => 'Kluang',
-                'postcode' => '86000',
-                'delivery_fee' => '10.00'
+                'area'         => 'Kluang',
+                'postcode'     => '86000',
+                'delivery_fee' => '10.00',
             ],
             [
-                'area' => 'Bangsar',
-                'postcode' => '59000',
-                'delivery_fee' => '0.00'
+                'area'         => 'Bangsar',
+                'postcode'     => '59000',
+                'delivery_fee' => '0.00',
             ],
         ];
 
-        foreach($postage_details as $detail) {
+        foreach ($postage_details as $detail) {
             Postage::create($detail);
+        }
+
+        /**
+         * Announcements
+         */
+        $announcement_category_details = ['Urgent', 'Sales', 'Promotions'];
+        foreach ($announcement_category_details as $detail) {
+            AnnouncementCategory::create([
+                'category' => $detail,
+            ]);
+        }
+        for ($i = 0; $i < 10; $i++) {
+            $category = AnnouncementCategory::inRandomOrder()->first();
+            $category_id = $category->id;
+            Announcement::create([
+                'category_id' => $category_id,
+                'announcement' => 'Testing Announcement'.$i+1,
+                'status' => $i < 1 ? 'active' : 'inactive'
+            ]);
         }
     }
 }
