@@ -93,6 +93,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 	width: 100%;
 	padding-right: 0;
 	padding-left: 0;
+    padding-bottom: 5rem;
 }
 
 .nav-item {
