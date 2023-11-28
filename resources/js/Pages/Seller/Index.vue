@@ -13,10 +13,10 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head title="Seller Management"/>
+    <Head title="Dealer Management"/>
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">All Sellers</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">All Dealers</h2>
         </template>
         <Breadcrumb :breadcrumbs="breadcrumbs"/>
         <div class="py-0">
@@ -24,7 +24,7 @@ const props = defineProps({
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
                         <div class="flex flex-col">
-                            <p class="text-xl">Seller Management</p>
+                            <p class="text-2xl font-bold">Dealer Management</p>
                             <p class="text-sm text-gray-600">Total <b>{{ sellers.length }}</b> sellers</p>
                         </div>
                         <Link :href="route('seller.create')"

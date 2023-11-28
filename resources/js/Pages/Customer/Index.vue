@@ -21,7 +21,7 @@ const props = defineProps({
 				<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 					<div class="flex items-center py-4 mx-6 border-b-2 border-gray-100">
 						<div class="flex flex-col">
-							<p class="text-xl">Customer Management</p>
+							<p class="text-2xl font-bold">Customer Management</p>
 							<p class="text-sm text-gray-600">Total <b>{{customers.length}}</b> customers</p>
 						</div>
 						<Link :href="route('customer.create')"
