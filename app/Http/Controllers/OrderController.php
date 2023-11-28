@@ -78,6 +78,16 @@ class OrderController extends Controller
 
         // Get current user customer
         $customers    = Customer::where('seller_id', Auth::id())->get();
+		foreach($customers as $customer) {
+			$customer->address  = sprintf('%s, %s, %s %s, %s',
+				$customer->unit_no,
+				$customer->street,
+				$customer->postcode,
+				$customer->city,
+				$customer->state,
+			);
+		}
+
         $all_products = Product::where('status', 'active')->get();
         foreach ($all_products as &$product) {
             $get_packages = PackageProduct::where('product_id', $product->id)->get();
