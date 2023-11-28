@@ -50,8 +50,15 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 			<li class="nav-item"
 				:class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
 				<Link :href="route('sellers.index')" :active="route().current('sellers.index')" class="nav-link">
-					<font-awesome-icon icon="users" class="mx-1"/>
+					<font-awesome-icon icon="image-portrait" class="mx-1"/>
 					Dealer
+				</Link>
+			</li>
+			<li class="nav-item"
+				:class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
+				<Link :href="route('sellers.index')" :active="route().current('sellers.index')" class="nav-link">
+					<font-awesome-icon icon="people-roof" class="mx-1"/>
+					Group
 				</Link>
 			</li>
 		</ul>
