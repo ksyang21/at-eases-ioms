@@ -119,6 +119,8 @@ Route::middleware('auth')->group(function () {
      * Postage
      */
     Route::get('/postages', [PostageController::class, 'index'])->name('postages.index');
+	Route::post('/postage', [PostageController::class, 'store'])->name('postage.store');
+	Route::delete('/postage/{postage}', [PostageController::class, 'destroy'])->name('postage.destroy');
 
     /**
      * Announcement

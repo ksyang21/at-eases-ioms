@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Postage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PostageController extends Controller
@@ -31,7 +33,6 @@ class PostageController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -39,7 +40,41 @@ class PostageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+	    $validator = Validator::make($request->all(), [
+		    'area' => [
+			    'required',
+			    Rule::unique('postages')->where(function ($query) use ($request) {
+				    return $query->where('postcode', $request->postcode);
+			    }),
+		    ],
+		    'postcode' => 'required|unique:postages',
+		    'state' => 'required|string',
+		    'delivery_fee' => 'required|numeric|min:0'
+	    ]);
+
+		if($validator->fails()) {
+			$breadcrumbs = [
+				[
+					'label' => 'Manage Postage',
+					'link' => 'postages.index'
+				]
+			];
+			return Inertia::render('Postage/Index', [
+				'postages' => Postage::all(),
+				'breadcrumbs' => $breadcrumbs,
+				'errors' => $validator->errors()
+			]);
+		}
+
+		$data = $validator->validated();
+		Postage::create([
+			'area' => $data['area'],
+			'postcode' => $data['postcode'],
+			'state' => $data['state'],
+			'delivery_fee' => $data['delivery_fee']
+		]);
+
+		return Inertia::location(route('postages.index'));
     }
 
     /**
@@ -69,8 +104,10 @@ class PostageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Postage $postage)
+    public function destroy(Postage $postage): \Symfony\Component\HttpFoundation\Response
     {
-        //
+        $postage->delete();
+
+		return Inertia::location(route('postages.index'));
     }
 }
