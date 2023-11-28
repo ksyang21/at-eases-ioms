@@ -12,6 +12,7 @@ class Postage extends Model
     protected $fillable = [
         'area',
         'postcode',
-        'delivery_fee'
+        'state',
+        'delivery_fee',
     ];
 }

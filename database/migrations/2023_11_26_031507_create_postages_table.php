@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('area');
             $table->string('postcode');
+            $table->string('state');
             $table->unsignedFloat('delivery_fee');
             $table->timestamps();
         });
