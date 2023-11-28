@@ -28,7 +28,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 				</Link>
 			</li>
 			<li class="nav-item"
-				:class="route().current('campaigns.index') || route().current('campaign.create') || route().current('order.create') ? 'active-link' : ''">
+				:class="route().current('campaigns.index') || route().current('campaign.create') ? 'active-link' : ''">
 				<Link :href="route('campaigns.index')" :active="route().current('campaigns.index')" class="nav-link">
 					<font-awesome-icon icon="fire" class="mx-1"/>
 					Campaign
