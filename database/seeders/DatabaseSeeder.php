@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
 
 		$admin = User::factory()->create([
 			'name'  => 'Admin',
-			'email' => 'admin@example.com',
+			'email' => 'admin@vertex.com',
 		]);
 		$admin->assignRole($admin_role);
 
@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
 		for ($i = 2; $i <= 10; $i++) {
 			User::factory()->create([
 				'name'  => 'Seller ' . $i,
-				'email' => 'seller' . $i . '@example.com',
+				'email' => 'seller' . $i . '@vertex.com',
 			]);
 
 			$postage_detail = $postage_details[array_rand($postage_details)];
