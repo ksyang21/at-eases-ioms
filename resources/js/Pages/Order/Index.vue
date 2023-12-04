@@ -238,14 +238,14 @@ function confirmMultiselect() {
                                @click="changeStatus('in transit')">In Transit</p>
                             <p class="status-item" :class="status === 'completed' ? 'active-status' : ''"
                                @click="changeStatus('completed')">Completed</p>
+                            <p class="status-item" :class="status === 'pending return' ? 'active-status' : ''"
+                               @click="changeStatus('pending return')">Pending Return</p>
                             <p class="status-item" :class="status === 'return' ? 'active-status' : ''"
                                @click="changeStatus('return')">Return</p>
                             <p class="status-item" :class="status === 'cancelled' ? 'active-status' : ''"
                                @click="changeStatus('cancelled')">Cancelled</p>
                             <p class="status-item" :class="status === 'rejected' ? 'active-status' : ''"
                                @click="changeStatus('rejected')">Rejected</p>
-                            <p class="status-item" :class="status === 'pending return' ? 'active-status' : ''"
-                               @click="changeStatus('pending return')">Pending Return</p>
                         </div>
                     </div>
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
@@ -491,7 +491,7 @@ function confirmMultiselect() {
                                             <font-awesome-icon icon="times" @click="rejectReturnRequest(order)"
                                                                v-if="order.status === 'pending return'"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
-                                                               title="Reject return request"/>
+                                                               title="Reject"/>
                                             <font-awesome-icon icon="times" @click="cancelOrder(order)"
                                                                v-if="order.status !== 'pending return' && order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
@@ -499,11 +499,7 @@ function confirmMultiselect() {
                                             <font-awesome-icon icon="ban" v-if="order.status === 'pending'"
                                                                @click="rejectOrder(order)"
                                                                class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
-                                                               title="Rejected"/>
-                                            <font-awesome-icon icon="ban" v-if="order.status === 'pending'"
-                                                               @click="rejectOrder(order)"
-                                                               class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
-                                                               title="Rejected"/>
+                                                               title="Reject"/>
                                         </div>
                                     </td>
                                 </tr>
