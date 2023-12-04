@@ -112,7 +112,7 @@ function addToCart() {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-        });
+        })
         /**
          * Check if current cart has this item. If exists sum up the total quantity
          */
@@ -229,6 +229,8 @@ function confirmOrder() {
             showCancelButton: true
         }).then((result) => {
             if (result.isConfirmed) {
+                cart.seller_id = cart.seller_id.code
+                cart.customer_id = cart.customer_id.code
                 router.post('/order', cart)
             }
         })
@@ -484,7 +486,7 @@ function removeProduct(product) {
                         <p class="text-xl mb-4">Total Price : RM {{ totalPrice.toFixed(2) }}</p>
                     </div>
                     <div class="bottom-0 fixed py-6">
-                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id > 0"
+                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id.code > 0"
                                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
                             <font-awesome-icon icon="check-circle" class="mr-2"/>
                             Create Order
