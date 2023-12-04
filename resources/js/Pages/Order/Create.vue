@@ -495,7 +495,7 @@ function removeProduct(product) {
                     <div class="py-6 px-6 flex flex-col items-end border border-gray-200">
                         <p class="text-xl mb-2">Total Items : {{ cart.products.length }}</p>
                         <p class="text-xl mb-2">Sub-total : RM {{ totalPrice.toFixed(2) }}</p>
-                        <p class="text-xl mb-2">Delivery Fee : RM {{ customerPostage.delivery_fee }}</p>
+                        <p class="text-xl mb-2">Delivery Fee : RM {{ customerPostage.delivery_fee.toFixed(2) }}</p>
                         <hr class="w-full border border-gray-300">
                         <p class="text-2xl my-2 ">Total :
                             <span class="font-semibold"> RM {{ (totalPrice + parseFloat(customerPostage.delivery_fee)).toFixed(2) }}</span></p>
