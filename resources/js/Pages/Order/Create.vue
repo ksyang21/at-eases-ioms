@@ -1,31 +1,84 @@
 <script setup>
 
-import {Head, Link, router} from "@inertiajs/vue3";
+import {Head, Link, router, usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import {inject, reactive, ref} from "vue";
+import {inject, reactive, ref, watch} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
+// Check if current user is Seller / Admin
+let currentUserRole = usePage().props.auth.role
 const Swal = inject('$swal')
 
 const props = defineProps({
     products: Object,
     customers: Object,
-    breadcrumbs: Object
+    sellers: Object,
+    breadcrumbs: Object,
 })
 
+// Re-structure sellers and customers for VueSelect
+let sellerOptions = []
+for (let seller of props.sellers) {
+    sellerOptions.push({
+        label: seller.name,
+        code: seller.id
+    })
+}
+
+let customerOptions = []
+for (let customer of props.customers) {
+    customerOptions.push({
+        label: customer.name,
+        code: customer.id
+    })
+}
+
 let cart = reactive({
-    customer_id: 0,
+    seller_id: {label: 'Please select seller', code: 0},
+    customer_id: {label: 'Please select customer', code: 0},
     products: []
 })
 
 let customer = {}
 
-function getCustomerDetails() {
+function getCustomerDetails(customerID) {
     customer = props.customers.find((c) => {
-        return c.id === cart.customer_id
+        return c.id === customerID
     })
 }
+
+let seller = {}
+
+function getSellerDetails(sellerID) {
+    seller = props.sellers.find((s) => {
+        return s.id === sellerID
+    })
+}
+
+if(currentUserRole !== 'admin') {
+    let currentSellerID = usePage().props.auth.user.id
+    seller = props.sellers.find((s) => {
+        return s.id === currentSellerID
+    })
+    console.log(seller)
+    cart.seller_id = {
+        label: seller.name,
+        code: currentSellerID
+    }
+}
+
+// Watch for changes, as VueSelect does not support @change
+watch(() => cart.customer_id, (selectedCustomer) => {
+    const customerID = selectedCustomer.code
+    getCustomerDetails(customerID)
+})
+
+watch(() => cart.seller_id, (selectedSeller) => {
+    const sellerID = selectedSeller.code
+    getSellerDetails(sellerID)
+})
+
 
 let totalPrice = ref(0.00)
 
@@ -254,19 +307,27 @@ function removeProduct(product) {
                     </div>
                     <div class="grid gap-6 md:grid-cols-2 border-b-2 border-gray-100">
                         <div class="p-6 mx-2">
-                            <div id="select-customer-section">
+                            <div v-if="$page.props.auth.role === 'admin'" id="select-seller-section">
+                                <label for="sellers"
+                                       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                                    Seller</label>
+                                <VueSelect :options="sellerOptions" v-model="cart.seller_id"/>
+                                <div v-if="cart.seller_id.code > 0" class="text-sm mt-3">
+                                    <p class="text-red-600">
+                                        <font-awesome-icon icon="people-roof" class="mr-2"/>
+                                        <span class="text-gray-600"
+                                              v-if="seller.group_details !== null">{{ seller.group_details.group.name }}</span>
+                                        <span class="text-gray-600" v-else>{{seller.name}} does not have a group</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="select-customer-section" class="mt-6">
                                 <label for="customers"
                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
                                     customer</label>
-                                <select id="customers" @change="getCustomerDetails"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                        v-model="cart.customer_id">
-                                    <option :value="customer.id" v-for="(customer, index) in customers"
-                                            :key="index">
-                                        {{ customer.name }}
-                                    </option>
-                                </select>
-                                <div v-if="cart.customer_id > 0" class="text-sm mt-2">
+                                <VueSelect :options="customerOptions" v-model="cart.customer_id"
+                                           @input="getCustomerDetails"/>
+                                <div v-if="cart.customer_id.code > 0" class="text-sm mt-3">
                                     <p class="text-red-600">
                                         <font-awesome-icon icon="phone" class="mr-2"/>
                                         <span class="text-gray-600">{{ customer.phone }}</span>
@@ -289,7 +350,7 @@ function removeProduct(product) {
                                         {{ product.name }}
                                     </option>
                                 </select>
-                                <div v-if="selectedProduct.id > 0" class="text-sm mt-2">
+                                <div v-if="selectedProduct.id > 0" class="text-sm mt-3">
                                     <p class="text-red-600">
                                         <font-awesome-icon icon="dollar" class="mr-2"/>
                                         <span class="text-gray-600">RM {{
@@ -363,8 +424,8 @@ function removeProduct(product) {
                             </Link>
                             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
                                     @click="openModal">
-                                View Cart <span
-                                class="ml-2 px-1.5 bg-white rounded-sm text-black">{{ cart.products.length }}</span>
+                                Summary
+                                <span class="ml-2 px-1.5 bg-white rounded-sm text-black">{{ cart.products.length }}</span>
                             </button>
                         </div>
                     </div>
