@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryLog;
 use App\Models\OrderDetails;
+use App\Models\Postage;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -108,10 +109,14 @@ class OrderController extends Controller
         // Get all sellers
         $sellers = User::with('groupDetails')->orderBy('name', 'asc')->get();
 
+        // Get postages to calculate delivery fee
+        $postages = Postage::all();
+
         return Inertia::render('Order/Create', [
             'products'    => $all_products,
             'customers'   => $customers,
             'sellers'     => $sellers,
+            'postages'    => $postages,
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
@@ -337,7 +342,8 @@ class OrderController extends Controller
         return Inertia::location(route('orders.index'));
     }
 
-    public function approveReturn(Order $order) {
+    public function approveReturn(Order $order)
+    {
         $order->status = 'return';
         $order->update();
 

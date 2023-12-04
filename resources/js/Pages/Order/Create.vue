@@ -14,6 +14,7 @@ const props = defineProps({
     products: Object,
     customers: Object,
     sellers: Object,
+    postages: Object,
     breadcrumbs: Object,
 })
 
@@ -41,10 +42,13 @@ let cart = reactive({
 })
 
 let customer = {}
-
+let customerPostage = {}
 function getCustomerDetails(customerID) {
     customer = props.customers.find((c) => {
         return c.id === customerID
+    })
+    customerPostage = props.postages.find((p) => {
+        return p.postcode === customer.postcode
     })
 }
 
@@ -56,7 +60,7 @@ function getSellerDetails(sellerID) {
     })
 }
 
-if(currentUserRole !== 'admin') {
+if (currentUserRole !== 'admin') {
     let currentSellerID = usePage().props.auth.user.id
     seller = props.sellers.find((s) => {
         return s.id === currentSellerID
@@ -320,8 +324,11 @@ function removeProduct(product) {
                                     <p class="text-red-600">
                                         <font-awesome-icon icon="people-roof" class="mr-2"/>
                                         <span class="text-gray-600"
-                                              v-if="seller.group_details !== null">{{ seller.group_details.group.name }}</span>
-                                        <span class="text-gray-600" v-else>{{seller.name}} does not have a group</span>
+                                              v-if="seller.group_details !== null">{{
+                                                seller.group_details.group.name
+                                            }}</span>
+                                        <span class="text-gray-600"
+                                              v-else>{{ seller.name }} does not have a group</span>
                                     </p>
                                 </div>
                             </div>
@@ -429,7 +436,9 @@ function removeProduct(product) {
                             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
                                     @click="openModal">
                                 Summary
-                                <span class="ml-2 px-1.5 bg-white rounded-sm text-black">{{ cart.products.length }}</span>
+                                <span class="ml-2 px-1.5 bg-white rounded-sm text-black">{{
+                                        cart.products.length
+                                    }}</span>
                             </button>
                         </div>
                     </div>
@@ -483,12 +492,17 @@ function removeProduct(product) {
                             <p class="text-2xl ml-auto">RM {{ product.total_price.toFixed(2) }}</p>
                         </div>
                     </div>
-                    <div class="py-6 flex flex-col items-end">
+                    <div class="py-6 px-6 flex flex-col items-end border border-gray-200">
                         <p class="text-xl mb-2">Total Items : {{ cart.products.length }}</p>
-                        <p class="text-xl mb-4">Total Price : RM {{ totalPrice.toFixed(2) }}</p>
+                        <p class="text-xl mb-2">Sub-total : RM {{ totalPrice.toFixed(2) }}</p>
+                        <p class="text-xl mb-2">Delivery Fee : RM {{ customerPostage.delivery_fee }}</p>
+                        <hr class="w-full border border-gray-300">
+                        <p class="text-2xl my-2 ">Total :
+                            <span class="font-semibold"> RM {{ (totalPrice + parseFloat(customerPostage.delivery_fee)).toFixed(2) }}</span></p>
                     </div>
                     <div class="bottom-0 fixed py-6">
-                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id.code > 0 && cart.seller_id.code > 0"
+                        <button @click="confirmOrder"
+                                v-if="cart.products.length > 0 && cart.customer_id.code > 0 && cart.seller_id.code > 0"
                                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
                             <font-awesome-icon icon="check-circle" class="mr-2"/>
                             Create Order
