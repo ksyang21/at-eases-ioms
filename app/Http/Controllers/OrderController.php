@@ -306,7 +306,15 @@ class OrderController extends Controller
 
     public function returnOrder(Order $order): \Symfony\Component\HttpFoundation\Response
     {
-        $order->status = 'return';
+        $order->status = 'pending return';
+        $order->update();
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function rejectOrder(Order $order): \Symfony\Component\HttpFoundation\Response
+    {
+        $order->status = 'rejected';
         $order->update();
 
         $order_details = OrderDetails::where('order_id', $order->id)->get();
@@ -325,12 +333,12 @@ class OrderController extends Controller
             $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
             $product_item->update();
         }
+
         return Inertia::location(route('orders.index'));
     }
 
-    public function rejectOrder(Order $order): \Symfony\Component\HttpFoundation\Response
-    {
-        $order->status = 'rejected';
+    public function approveReturn(Order $order) {
+        $order->status = 'return';
         $order->update();
 
         $order_details = OrderDetails::where('order_id', $order->id)->get();

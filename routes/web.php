@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/reject-order/{order}', [OrderController::class, 'rejectOrder'])->name('order.reject');
     Route::put('/complete-order/{order}', [OrderController::class, 'completeOrder'])->name('order.complete');
     Route::put('/return-order/{order}', [OrderController::class, 'returnOrder'])->name('order.return');
+    Route::put('/approve-return/{order}', [OrderController::class, 'approveReturn'])->name('order.approveReturn');
     Route::put('/in-transit-order/{order}', [OrderController::class, 'inTransitOrder'])->name('order.inTransit');
 
     /**
@@ -127,8 +128,8 @@ Route::middleware('auth')->group(function () {
      * Postage
      */
     Route::get('/postages', [PostageController::class, 'index'])->name('postages.index');
-	Route::post('/postage', [PostageController::class, 'store'])->name('postage.store');
-	Route::delete('/postage/{postage}', [PostageController::class, 'destroy'])->name('postage.destroy');
+    Route::post('/postage', [PostageController::class, 'store'])->name('postage.store');
+    Route::delete('/postage/{postage}', [PostageController::class, 'destroy'])->name('postage.destroy');
 
     /**
      * Announcement

@@ -167,6 +167,30 @@ function rejectOrder(order) {
     })
 }
 
+function approveReturn(order) {
+    Swal.fire({
+        text: `Approve return request of Order ${order.order_no}?`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.put(`/approve-return/${order.id}`)
+        }
+    })
+}
+
+function rejectReturnRequest(order) {
+    Swal.fire({
+        html: `Reject return request of Order ${order.order_no}? <br>It will be reverted to <b>In Transit</b> status.`,
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.put(`/in-transit-order/${order.id}`)
+        }
+    })
+}
+
 function changeDate() {
     filterOrders()
 }
@@ -220,6 +244,8 @@ function confirmMultiselect() {
                                @click="changeStatus('cancelled')">Cancelled</p>
                             <p class="status-item" :class="status === 'rejected' ? 'active-status' : ''"
                                @click="changeStatus('rejected')">Rejected</p>
+                            <p class="status-item" :class="status === 'pending return' ? 'active-status' : ''"
+                               @click="changeStatus('pending return')">Pending Return</p>
                         </div>
                     </div>
                     <div class="pt-3 pb-6 px-6 min-h-[500px]">
@@ -337,13 +363,13 @@ function confirmMultiselect() {
                         <div v-if="deliveryMethod !== 'all'">
                             Selected Delivery : <span class="text-gray-400">{{ deliveryMethod.delivery_method }}</span>
                         </div>
-                        <div class="md:flex md:items-center">
-                            <button type="button" @click="toggleMultiselect"
-                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                Bulk Select
-                            </button>
-                            <button @click="confirmMultiselect">Confirm</button>
-                        </div>
+<!--                        <div class="md:flex md:items-center">-->
+<!--                            <button type="button" @click="toggleMultiselect"-->
+<!--                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">-->
+<!--                                Bulk Select-->
+<!--                            </button>-->
+<!--                            <button @click="confirmMultiselect">Confirm</button>-->
+<!--                        </div>-->
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
@@ -375,7 +401,8 @@ function confirmMultiselect() {
                                 </tr>
                                 </thead>
                                 <tbody v-if="orders.length > 0">
-                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                <tr class="border-b"
+                                    :class="order.status.toLowerCase() === 'pending return' ? 'bg-gray-200' : 'bg-white  hover:bg-gray-50'"
                                     v-for="(order, index) in orders" :key="index" @click="selectRow(order)">
                                     <td class="px-6 py-4">
                                         <input type="checkbox" :key="index" :value="order.id" v-show="multiselectMode"
@@ -407,6 +434,9 @@ function confirmMultiselect() {
                                             •{{ order.status.toUpperCase() }}
                                         </p>
                                         <p v-if="order.status === 'rejected'" class="text-red-700">
+                                            •{{ order.status.toUpperCase() }}
+                                        </p>
+                                        <p v-if="order.status === 'pending return'" class="text-orange-700">
                                             •{{ order.status.toUpperCase() }}
                                         </p>
                                     </td>
@@ -454,10 +484,22 @@ function confirmMultiselect() {
                                                                @click="approveOrder(order)"
                                                                class="ml-3 text-green-600 hover:text-green-900 order-action-btn"
                                                                title="Approve"/>
+                                            <font-awesome-icon icon="check-circle" @click="approveReturn(order)"
+                                                               v-if="order.status === 'pending return'"
+                                                               class="ml-3 text-green-500 hover:text-green-900 order-action-btn"
+                                                               title="Approve"/>
+                                            <font-awesome-icon icon="times" @click="rejectReturnRequest(order)"
+                                                               v-if="order.status === 'pending return'"
+                                                               class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
+                                                               title="Reject return request"/>
                                             <font-awesome-icon icon="times" @click="cancelOrder(order)"
-                                                               v-if="order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
+                                                               v-if="order.status !== 'pending return' && order.status !== 'pending' && order.status !== 'rejected' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'return'"
                                                                class="ml-3 text-red-600 hover:text-red-900 order-action-btn"
                                                                title="Cancel"/>
+                                            <font-awesome-icon icon="ban" v-if="order.status === 'pending'"
+                                                               @click="rejectOrder(order)"
+                                                               class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
+                                                               title="Rejected"/>
                                             <font-awesome-icon icon="ban" v-if="order.status === 'pending'"
                                                                @click="rejectOrder(order)"
                                                                class="ml-3 text-red-500 hover:text-red-900 order-action-btn"
