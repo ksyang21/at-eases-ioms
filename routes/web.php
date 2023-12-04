@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryMethodController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PackageController;
@@ -116,6 +117,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/seller', [SellerController::class, 'store'])->name('seller.store');
 
     /**
+     * Groups
+     */
+    Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/add-group', [GroupController::class, 'create'])->name('groups.create');
+
+    /**
      * Postage
      */
     Route::get('/postages', [PostageController::class, 'index'])->name('postages.index');
@@ -129,6 +136,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/activate-announcement/{announcement}', [AnnouncementController::class, 'activateAnnouncement'])->name('announcement.activate');
     Route::put('/deactivate-announcement/{announcement}', [AnnouncementController::class, 'deactivateAnnouncement'])->name('announcement.deactivate');
     Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
+
 });
 
 Route::get('/inventory', function () {
