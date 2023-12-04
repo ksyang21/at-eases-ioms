@@ -15,4 +15,14 @@ class GroupMember extends Model
 		'seller_id',
 		'status'
 	];
+
+    public function seller(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function group(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
 }

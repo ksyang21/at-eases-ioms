@@ -15,4 +15,19 @@ class Group extends Model
 		'total_pv',
 		'status'
 	];
+
+    public function members(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(GroupMember::class, 'group_id');
+    }
+
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Group::class, 'parent_id');
+    }
+
+    public function subgroups(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Group::class, 'parent_id')->with('subgroups');
+    }
 }

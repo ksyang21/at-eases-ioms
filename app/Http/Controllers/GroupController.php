@@ -4,15 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class GroupController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
-        //
+        $breadcrumbs = [
+            [
+                'label' => 'Groups',
+                'link' => 'groups.index'
+            ]
+        ];
+
+        // Get parent groups first
+        $categorized_groups = Group::with('subgroups')->with('members')->where('parent_id', 0)->orderBy('total_pv', 'desc')->get();
+        $groups = Group::with('members')->orderBy('total_pv', 'desc')->get();
+        foreach($groups as $group_key => $group) {
+            $members = $group['members'];
+            if($members) {
+                foreach($members as $member) {
+                   $seller = $member->seller;
+                }
+            }
+        }
+        return Inertia::render('Group/Index', [
+            'categorized_groups' => $categorized_groups,
+            'groups' => $groups,
+            'breadcrumbs' => $breadcrumbs
+        ]);
     }
 
     /**
