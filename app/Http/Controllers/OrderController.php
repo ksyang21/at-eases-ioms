@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryLog;
 use App\Models\OrderDetails;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -47,16 +48,16 @@ class OrderController extends Controller
         $today_order_amount = $today_orders->sum('total_price');
 
         $earliest_order_date = Order::min('created_at');
-        $latest_order_date = Order::max('created_at');
+        $latest_order_date   = Order::max('created_at');
 
         return Inertia::render('Order/Index', [
-            'delivery_methods'   => $delivery_methods,
-            'orders'             => $orders,
-            'breadcrumbs'        => $breadcrumbs,
-            'today_orders'       => $today_orders,
-            'today_order_amount' => $today_order_amount,
+            'delivery_methods'    => $delivery_methods,
+            'orders'              => $orders,
+            'breadcrumbs'         => $breadcrumbs,
+            'today_orders'        => $today_orders,
+            'today_order_amount'  => $today_order_amount,
             'earliest_order_date' => $earliest_order_date,
-            'latest_order_date' => $latest_order_date
+            'latest_order_date'   => $latest_order_date,
         ]);
     }
 
@@ -77,17 +78,18 @@ class OrderController extends Controller
         ];
 
         // Get current user customer
-        $customers    = Customer::where('seller_id', Auth::id())->get();
-		foreach($customers as $customer) {
-			$customer->address  = sprintf('%s, %s, %s %s, %s',
-				$customer->unit_no,
-				$customer->street,
-				$customer->postcode,
-				$customer->city,
-				$customer->state,
-			);
-		}
+        $customers = Customer::where('seller_id', Auth::id())->get();
+        foreach ($customers as $customer) {
+            $customer->address = sprintf('%s, %s, %s %s, %s',
+                $customer->unit_no,
+                $customer->street,
+                $customer->postcode,
+                $customer->city,
+                $customer->state,
+            );
+        }
 
+        // Get products with packages
         $all_products = Product::where('status', 'active')->get();
         foreach ($all_products as &$product) {
             $get_packages = PackageProduct::where('product_id', $product->id)->get();
@@ -102,9 +104,14 @@ class OrderController extends Controller
             }
             $product['packages'] = $packages;
         }
+
+        // Get all sellers
+        $sellers = User::with('groupDetails')->orderBy('name', 'asc')->get();
+
         return Inertia::render('Order/Create', [
             'products'    => $all_products,
             'customers'   => $customers,
+            'sellers'     => $sellers,
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
