@@ -13,7 +13,8 @@ return new class extends Migration {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('filename')->default(NULL)->nullable();
+            $table->text('description')->default(NULL)->nullable();
+            $table->string('filename');
             $table->unsignedBigInteger('uploaded_by');
             $table->enum('status', ['active', 'inactive', 'outdated']);
             $table->foreign('uploaded_by')->references('id')->on('users')->noActionOnDelete();
