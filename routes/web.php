@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryMethodController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\InventoryLogController;
 use App\Http\Controllers\OrderController;
@@ -137,6 +138,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/deactivate-announcement/{announcement}', [AnnouncementController::class, 'deactivateAnnouncement'])->name('announcement.deactivate');
     Route::delete('/announcement/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcement.destroy');
 
+    /**
+     * Document
+     */
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 });
 
 Route::get('/inventory', function () {

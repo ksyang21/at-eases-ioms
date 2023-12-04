@@ -34,29 +34,33 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 					Campaign
 				</Link>
 			</li>
+            <li class="nav-item"
+                :class="route().current('documents.index') ? 'active-link' : ''">
+                <Link :href="route('documents.index')" :active="route().current('documents.index')" class="nav-link">
+                    <font-awesome-icon icon="file-import" class="mx-1"/>
+                    Document
+                </Link>
+            </li>
 		</ul>
 		<hr>
 		<p class="pt-6 px-6 text-gray-400 text-sm font-bold">
 			Users
 		</p>
 		<ul>
-			<li class="nav-item"
-				:class="route().current('customers.index') || route().current('customer.create')  ? 'active-link' : ''">
+			<li class="nav-item" :class="route().current('customers.index') || route().current('customer.create')  ? 'active-link' : ''">
 				<Link :href="route('customers.index')" :active="route().current('customers.index')" class="nav-link">
 					<font-awesome-icon icon="sitemap" class="mx-1"/>
 					Customer
 				</Link>
 			</li>
-			<li class="nav-item"
-				:class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
+			<li class="nav-item" :class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
 				<Link :href="route('sellers.index')" :active="route().current('sellers.index')" class="nav-link">
 					<font-awesome-icon icon="image-portrait" class="mx-1"/>
 					Dealer
 				</Link>
 			</li>
-			<li class="nav-item"
-				:class="route().current('sellers.index') || route().current('sellers.create')  ? 'active-link' : ''">
-				<Link :href="route('sellers.index')" :active="route().current('sellers.index')" class="nav-link">
+			<li class="nav-item" :class="route().current('groups.index') || route().current('groups.create')  ? 'active-link' : ''">
+				<Link :href="route('groups.index')" :active="route().current('groups.index')" class="nav-link">
 					<font-awesome-icon icon="people-roof" class="mx-1"/>
 					Group
 				</Link>
