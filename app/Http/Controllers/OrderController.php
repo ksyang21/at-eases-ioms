@@ -124,7 +124,7 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $products    = $request->request->all()['products'];
         $customer_id = $request->request->all()['customer_id'];
@@ -144,6 +144,12 @@ class OrderController extends Controller
             'seller_id'   => $seller_id,
             'customer_id' => $customer_id,
         ]);
+
+        // Get customer and the postage details
+        $customer = Customer::find($customer_id);
+        $postcode = $customer->postcode;
+        $postage = Postage::where('postcode', $postcode)->first();
+        $delivery_fee = $postage->delivery_fee;
 
         $order_total_price = 0.00;
         foreach ($products as $product) {
@@ -194,7 +200,7 @@ class OrderController extends Controller
             }
         }
 
-        $order->total_price = $order_total_price;
+        $order->total_price = $order_total_price + $delivery_fee;
         $order->update();
 
         return Redirect::route('orders.index')->with('success', 'Order created!');
