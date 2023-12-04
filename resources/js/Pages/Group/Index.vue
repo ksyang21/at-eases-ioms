@@ -40,7 +40,7 @@ let modalGroupDetails = reactive({
 })
 
 let groupPvRecords = ref({})
-let pvRecordsLoading = ref(false)
+let pvRecordsLoading = ref(true)
 
 async function getGroupPvRecords() {
     let response = await axios.get(`/group-pv-record/${modalGroupDetails.id}`)
@@ -166,8 +166,8 @@ function closeModal() {
         </div>
         <div v-if="isModalOpen" class="fixed inset-0 bg-gray-800 bg-opacity-50"></div>
         <div id="groupDetailModal"
-             class="w-full md:w-1/2 hidden fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
-            <div class="top-0 p-6 border-b-2 border-gray-100 flex items-center">
+             class="w-full md:w-1/2 hidden overflow-y-scroll fixed inset-y-0 right-0 bg-white flex flex-col shadow-2xl">
+            <div class="sticky top-0 bg-white p-6 border-b-2 border-gray-100 flex items-center">
                 <p class="text-2xl">Group Details</p>
                 <button class="text-red-600 ml-auto" @click="closeModal">
                     <font-awesome-icon icon="times-circle"/>
@@ -197,7 +197,7 @@ function closeModal() {
                                         modalGroupDetails.members.length
                                     }}</b></span></p>
                             </div>
-                            <Link :href="route('seller.create')"
+                            <Link href=""
                                   class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1 mr-2 ml-auto flex items-center">
                                 <font-awesome-icon icon="pen" class="mr-2"/>
                                 Edit
@@ -206,22 +206,27 @@ function closeModal() {
                         <div id="modal-members-list">
                             <ul class="w-full text-sm font-medium text-gray-900 bg-white">
                                 <li class="w-full px-4 py-2 border-b border-gray-200">
-                                    {{ Object.entries(modalGroupDetails.leader).length > 0 ?  modalGroupDetails.leader.seller.name : '' }}
+                                    {{
+                                        Object.entries(modalGroupDetails.leader).length > 0 ? modalGroupDetails.leader.seller.name : ''
+                                    }}
                                     <span class="py-1 px-2 bg-red-500 ml-1 rounded-md text-white">Leader</span>
                                 </li>
-                                <li class="w-full px-4 py-2 "
-                                    :class="index < modalGroupDetails.members.length - 1 ? 'border-b border-gray-200' : ''"
+                                <li class="w-full px-4 py-2 border-b border-gray-200"
                                     v-for="(member, index) in modalGroupDetails.staffs">
                                     {{ member.seller.name }}
                                 </li>
                             </ul>
-
                         </div>
                     </div>
                 </div>
-                <div id="pv-records-section">
-                    <div class="text-center p-16" v-if="pvRecordsLoading">
-                        <div role="status">
+                <div class="bg-white overflow-hidden border-2 rounded-lg mt-6" id="pv-records-section">
+                    <div class="flex items-center py-4 px-4 border-b-2 border-gray-100">
+                        <div class="flex flex-col">
+                            <p class="font-bold">Sales Records</p>
+                        </div>
+                    </div>
+                    <div class="text-center p-16 mt-6">
+                        <div role="status" v-if="pvRecordsLoading">
                             <svg aria-hidden="true" class="inline w-16 h-16 text-gray-200 animate-spin fill-red-600"
                                  viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -232,6 +237,10 @@ function closeModal() {
                                     fill="currentFill"/>
                             </svg>
                             <span class="sr-only">Loading...</span>
+                        </div>
+                        <div v-else>
+                            <ul class="w-full text-sm font-medium text-gray-900 bg-white">
+                            </ul>
                         </div>
                     </div>
                 </div>
