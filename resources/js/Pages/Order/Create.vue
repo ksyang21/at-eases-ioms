@@ -61,7 +61,6 @@ if(currentUserRole !== 'admin') {
     seller = props.sellers.find((s) => {
         return s.id === currentSellerID
     })
-    console.log(seller)
     cart.seller_id = {
         label: seller.name,
         code: currentSellerID
