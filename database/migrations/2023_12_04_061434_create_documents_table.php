@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->text('description')->default(NULL)->nullable();
             $table->string('filename');
             $table->unsignedBigInteger('uploaded_by');
+            $table->enum('type', ['document', 'image', 'video']);
             $table->enum('status', ['active', 'inactive', 'outdated']);
             $table->foreign('uploaded_by')->references('id')->on('users')->noActionOnDelete();
             $table->timestamps();

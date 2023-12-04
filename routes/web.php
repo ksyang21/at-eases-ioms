@@ -142,6 +142,10 @@ Route::middleware('auth')->group(function () {
      * Document
      */
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::get('/upload-document', [DocumentController::class, 'create'])->name('document.create');
+    Route::post('/document', [DocumentController::class, 'store'])->name('document.store');
+    Route::get('/download-document/{document}', [DocumentController::class, 'downloadDocument'])->name('document.download');
+    Route::delete('/document/{document}', [DocumentController::class, 'destroy'])->name('document.destroy');
 });
 
 Route::get('/inventory', function () {

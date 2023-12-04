@@ -35,7 +35,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 				</Link>
 			</li>
             <li class="nav-item"
-                :class="route().current('documents.index') ? 'active-link' : ''">
+                :class="route().current('documents.index') || route().current('document.create') ? 'active-link' : ''">
                 <Link :href="route('documents.index')" :active="route().current('documents.index')" class="nav-link">
                     <font-awesome-icon icon="file-import" class="mx-1"/>
                     Document

@@ -12,12 +12,15 @@ class Document extends Model
     public $timestamps = true;
     protected $fillable = [
         'name',
+        'description',
+        'status',
+        'type',
         'filename',
         'uploaded_by'
     ];
 
     public function uploader(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(User::class, 'uploaded_by');
+        return $this->hasOne(User::class, 'id', 'uploaded_by');
     }
 }
