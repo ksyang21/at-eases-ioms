@@ -209,12 +209,15 @@ function calculateProductPrice(quantity, product) {
 
 function confirmOrder() {
     let errorText = ''
-    if (cart.products.length < 1 || cart.customer_id <= 0) {
+    if (cart.products.length < 1 || cart.customer_id.code <= 0 || cart.seller_id.code <= 0) {
         if (cart.products.length < 1) {
             errorText += 'Empty cart!<br>'
         }
-        if (cart.customer_id <= 0) {
+        if (cart.customer_id.code <= 0) {
             errorText += 'Please select customer first!<br>'
+        }
+        if (cart.seller_id.code <= 0) {
+            errorText += 'Please select seller first!<br>'
         }
 
         Swal.fire({
@@ -486,7 +489,7 @@ function removeProduct(product) {
                         <p class="text-xl mb-4">Total Price : RM {{ totalPrice.toFixed(2) }}</p>
                     </div>
                     <div class="bottom-0 fixed py-6">
-                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id.code > 0"
+                        <button @click="confirmOrder" v-if="cart.products.length > 0 && cart.customer_id.code > 0 && cart.seller_id.code > 0"
                                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto flex items-center">
                             <font-awesome-icon icon="check-circle" class="mr-2"/>
                             Create Order
