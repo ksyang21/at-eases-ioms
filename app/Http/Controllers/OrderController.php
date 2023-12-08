@@ -6,6 +6,7 @@ use App\Models\InventoryLog;
 use App\Models\OrderDetails;
 use App\Models\Postage;
 use App\Models\User;
+use App\Services\CommissionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -20,6 +21,12 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+    protected ?CommissionService $commission_service;
+    public function __construct(CommissionService $commission_service)
+    {
+        $this->commission_service = $commission_service;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -128,7 +135,7 @@ class OrderController extends Controller
     {
         $products    = $request->request->all()['products'];
         $customer_id = $request->request->all()['customer_id'];
-        $seller_id   = Auth::id();
+        $seller_id   = $request->request->all()['seller_id'];
 
         // get latest order to generate order no
         $latest_order = Order::latest()->first();
@@ -199,6 +206,9 @@ class OrderController extends Controller
                 $product_item->update();
             }
         }
+
+        // Get seller details to calculate commissions, and add pv to groups
+        $seller = User::find($seller_id);
 
         $order->total_price = $order_total_price + $delivery_fee;
         $order->update();
@@ -348,7 +358,7 @@ class OrderController extends Controller
         return Inertia::location(route('orders.index'));
     }
 
-    public function approveReturn(Order $order)
+    public function approveReturn(Order $order): \Symfony\Component\HttpFoundation\Response
     {
         $order->status = 'return';
         $order->update();
