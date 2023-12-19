@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commission;
+use App\Models\GroupMember;
 use App\Models\InventoryLog;
 use App\Models\OrderDetails;
 use App\Models\Postage;
@@ -49,6 +51,8 @@ class OrderController extends Controller
             } else {
                 $order['delivery_method'] = NULL;
             }
+
+            $order['multiselected'] = false;
         }
 
         // Get today orders
@@ -207,9 +211,6 @@ class OrderController extends Controller
             }
         }
 
-        // Get seller details to calculate commissions, and add pv to groups
-        $seller = User::find($seller_id);
-
         $order->total_price = $order_total_price + $delivery_fee;
         $order->update();
 
@@ -255,30 +256,6 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
-    }
-
     public function approveOrder(Order $order): \Symfony\Component\HttpFoundation\Response
     {
         $order->status = 'approved';
@@ -322,6 +299,17 @@ class OrderController extends Controller
     {
         $order->status = 'completed';
         $order->update();
+
+        // Add PV to group
+        // PV will be deducted if order is returned (after approval)
+        $seller_id = $order->seller_id;
+        $group_details = GroupMember::where('seller_id', $seller_id)->with('group')->first();
+        $group = $group_details->group;
+        $group->addPv($order->total_price);
+
+        // Calculate commission
+        $this->commission_service->calculateCommission($order);
+
         return Inertia::location(route('orders.index'));
     }
 
@@ -378,6 +366,127 @@ class OrderController extends Controller
             $product_item                 = Product::find($product_id);
             $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
             $product_item->update();
+        }
+
+        // Deduct PV
+        $seller_id = $order->seller_id;
+        $group_details = GroupMember::where('seller_id', $seller_id)->with('group')->first();
+        $group = $group_details->group;
+        $group->deductPv($order->total_price);
+
+        // Remove Commission
+        $commission = Commission::where('order_id', $order->id)->first();
+        $commission->status = 'inactive';
+        $commission->update();
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkApproveOrder(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'approved';
+            $order->update();
+        }
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkRejectOrder(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'rejected';
+            $order->update();
+        }
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkInTransit(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'in transit';
+            $order->update();
+        }
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkCancelOrder(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'cancelled';
+            $order->update();
+        }
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkCompleteOrder(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'completed';
+            $order->update();
+
+            // Add PV to group
+            // PV will be deducted if order is returned (after approval)
+            $seller_id = $order->seller_id;
+            $group_details = GroupMember::where('seller_id', $seller_id)->with('group')->first();
+            $group = $group_details->group;
+            $group->addPv($order->total_price);
+
+            // Calculate commission
+            $this->commission_service->calculateCommission($order);
+        }
+
+        return Inertia::location(route('orders.index'));
+    }
+
+    public function bulkApproveReturn(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $order_ids = $request->all()['orders'];
+        foreach($order_ids as $id) {
+            $order = Order::find($id);
+            $order->status = 'return';
+            $order->update();
+
+            $order_details = OrderDetails::where('order_id', $order->id)->get();
+            foreach ($order_details as $detail) {
+                $product_id = $detail->product_id;
+                $quantity   = $detail->quantity;
+
+                InventoryLog::create([
+                    'product_id'   => $product_id,
+                    'quantity'     => $quantity,
+                    'stock_status' => 'stock in',
+                    'description'  => '#' . $order->order_no,
+                ]);
+
+                $product_item                 = Product::find($product_id);
+                $product_item->stock_quantity = $product_item->stock_quantity + $quantity;
+                $product_item->update();
+            }
+
+            // Deduct PV
+            $seller_id = $order->seller_id;
+            $group_details = GroupMember::where('seller_id', $seller_id)->with('group')->first();
+            $group = $group_details->group;
+            $group->deductPv($order->total_price);
+
+            // Remove Commission
+            $commission = Commission::where('order_id', $order->id)->first();
+            $commission->status = 'inactive';
+            $commission->update();
         }
 
         return Inertia::location(route('orders.index'));

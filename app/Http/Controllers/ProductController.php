@@ -19,14 +19,14 @@ class ProductController extends Controller
         $breadcrumbs = [
             [
                 'label' => 'Inventory',
-                'link' => 'products.index'
+                'link'  => 'products.index',
             ],
         ];
-        $products = Product::orderBy('status')->orderBy('name')->get();
+        $products    = Product::orderBy('status')->orderBy('name')->get();
 
         return Inertia::render('Inventory/Index', [
-            'products' => $products,
-            'breadcrumbs' => $breadcrumbs
+            'products'    => $products,
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -38,15 +38,15 @@ class ProductController extends Controller
         $breadcrumbs = [
             [
                 'label' => 'Inventory',
-                'link' => 'products.index'
+                'link'  => 'products.index',
             ],
             [
                 'label' => 'New Product',
-                'link' => 'product.create'
+                'link'  => 'product.create',
             ],
         ];
         return Inertia::render('Inventory/Create', [
-            'breadcrumbs' => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -63,6 +63,7 @@ class ProductController extends Controller
                 Rule::unique('products', 'name'),
             ],
             'description' => 'nullable|string',
+            'cost'        => 'numeric|min:0|required',
             'pv'          => 'numeric|min:0|required',
             'price'       => 'numeric|min:0|required',
             'image'       => 'nullable|image|mimes:jpeg,png|max:2048',
@@ -80,7 +81,7 @@ class ProductController extends Controller
 
         $data = $validator->getData();
 
-        $image_path = null;
+        $image_path = NULL;
         if ($request->hasFile('image')) {
             $image_path = $request->file('image')->store('image', 'public');
         }
@@ -92,6 +93,7 @@ class ProductController extends Controller
             'price'       => $data['price'],
             'image'       => $image_path,
             'status'      => $data['status'],
+            'cost'        => $data['cost'],
         ]);
 
         return Redirect::route('products.index')->with('success', sprintf('%s added!', $data['name']));
@@ -134,7 +136,9 @@ class ProductController extends Controller
                 'required',
                 Rule::in(['active', 'inactive']),
             ],
+            'cost'        => 'numeric|min:0|required',
         ]);
+
         if ($validator->fails()) {
             return Inertia::render('Inventory/Edit', [
                 'errors' => $validator->errors()->all(),
@@ -143,7 +147,7 @@ class ProductController extends Controller
 
         $data = $validator->getData();
 
-        $image_path = null;
+        $image_path = NULL;
         if ($request->hasFile('image')) {
             $image_path = $request->file('image')->store('image', 'public');
         }
@@ -155,6 +159,7 @@ class ProductController extends Controller
             'price'       => $data['price'],
             'image'       => $image_path,
             'status'      => $data['status'],
+            'cost'        => $data['cost'],
         ]);
 
         return Redirect::route('products.index')->with('success', sprintf('%s updated!', $data['name']));

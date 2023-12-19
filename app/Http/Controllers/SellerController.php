@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commission;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -22,7 +24,14 @@ class SellerController extends Controller
                 'link'  => 'sellers.index',
             ],
         ];
-        $sellers     = User::all();
+        $sellers     = User::orderBy('name', 'asc')->get();
+        foreach($sellers as $seller) {
+            $seller->group_details = $seller->groupDetails;
+            // Get commissions
+            $start_date = Carbon::now()->startOfMonth();
+            $end_date = Carbon::now()->endOfMonth();
+            $seller->commission = Commission::where('seller_id', $seller->id)->where('status', 'active')->whereBetween('created_at', [$start_date, $end_date])->sum('commission');
+        }
         return Inertia::render('Seller/Index', [
             'sellers'     => $sellers,
             'breadcrumbs' => $breadcrumbs,

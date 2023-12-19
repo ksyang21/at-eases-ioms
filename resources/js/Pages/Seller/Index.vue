@@ -34,60 +34,6 @@ const props = defineProps({
                         </Link>
                     </div>
                     <div class="p-6">
-<!--                        <fwb-accordion>-->
-<!--                            <fwb-accordion-panel>-->
-<!--                                <fwb-accordion-header>header</fwb-accordion-header>-->
-<!--                                <fwb-accordion-content>-->
-<!--                                    <div>-->
-<!--                                        <p class="mb-2 text-gray-500 dark:text-gray-400">-->
-<!--                                            Flowbite is an open-source library of interactive components built on top of-->
-<!--                                            Tailwind CSS including buttons, dropdowns, modals, navbars, and more.-->
-<!--                                        </p>-->
-<!--                                        <p class="text-gray-500 dark:text-gray-400">-->
-<!--                                            Check out this guide to learn how to <a-->
-<!--                                            href="/docs/getting-started/introduction/"-->
-<!--                                            class="text-blue-600 dark:text-blue-500 hover:underline">get started</a> and-->
-<!--                                            start developing websites even faster with components on top of Tailwind-->
-<!--                                            CSS.-->
-<!--                                        </p>-->
-<!--                                    </div>-->
-<!--                                </fwb-accordion-content>-->
-<!--                            </fwb-accordion-panel>-->
-<!--                            <fwb-accordion-panel>-->
-<!--                                <fwb-accordion-header>another header</fwb-accordion-header>-->
-<!--                                <fwb-accordion-content>-->
-<!--                                    <div>-->
-<!--                                        <p class="mb-2 text-gray-500 dark:text-gray-400">-->
-<!--                                            Flowbite is first conceptualized and designed using the Figma software so-->
-<!--                                            everything you see in the library has a design equivalent in our Figma file.-->
-<!--                                        </p>-->
-<!--                                        <p class="text-gray-500 dark:text-gray-400">-->
-<!--                                            Check out the <a href="https://flowbite.com/figma/"-->
-<!--                                                             class="text-blue-600 dark:text-blue-500 hover:underline">Figma-->
-<!--                                            design system</a> based on the utility classes from Tailwind CSS and-->
-<!--                                            components from Flowbite.-->
-<!--                                        </p>-->
-<!--                                    </div>-->
-<!--                                </fwb-accordion-content>-->
-<!--                            </fwb-accordion-panel>-->
-<!--                            <fwb-accordion-panel>-->
-<!--                                <fwb-accordion-header>and one more header</fwb-accordion-header>-->
-<!--                                <fwb-accordion-content>-->
-<!--                                    <div>-->
-<!--                                        <p class="mb-2 text-gray-500 dark:text-gray-400">-->
-<!--                                            Flowbite is first conceptualized and designed using the Figma software so-->
-<!--                                            everything you see in the library has a design equivalent in our Figma file.-->
-<!--                                        </p>-->
-<!--                                        <p class="text-gray-500 dark:text-gray-400">-->
-<!--                                            Check out the <a href="https://flowbite.com/figma/"-->
-<!--                                                             class="text-blue-600 dark:text-blue-500 hover:underline">Figma-->
-<!--                                            design system</a> based on the utility classes from Tailwind CSS and-->
-<!--                                            components from Flowbite.-->
-<!--                                        </p>-->
-<!--                                    </div>-->
-<!--                                </fwb-accordion-content>-->
-<!--                            </fwb-accordion-panel>-->
-<!--                        </fwb-accordion>-->
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
@@ -99,6 +45,9 @@ const props = defineProps({
                                     </th>
                                     <th scope="col" class="px-6 py-3">
                                         Email
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        This Month Commission (MYR)
                                     </th>
                                     <th scope="col" class="px-6 py-3">
                                         Join Date
@@ -113,15 +62,19 @@ const props = defineProps({
                                     v-for="(seller, index) in sellers" :key="index">
                                     <th scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {{ seller.name }}
+                                        <p class="font-bold text-lg">{{ seller.name }}</p>
+                                        <p v-if="seller.group_details">{{ seller.group_details.group.name }}</p>
                                     </th>
                                     <td class="px-6 py-4">
                                         {{ seller.email }}
                                     </td>
                                     <td class="px-6 py-4">
+                                        {{ seller.commission.toFixed(2) }}
+                                    </td>
+                                    <td class="px-6 py-4">
                                         {{ moment(seller.created_at).format('YYYY-MM-DD') }}
                                     </td>
-                                    <td class="px-6 py-4 flex items-center">
+                                    <td class="px-6 py-4 flex items-center align-middle">
                                         <div class="relative flex flex-col items-center group">
                                             <font-awesome-icon icon="pen-to-square"
                                                                class="action-btn hover:text-gray-800"/>

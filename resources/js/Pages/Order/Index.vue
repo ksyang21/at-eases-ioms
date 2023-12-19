@@ -30,6 +30,14 @@ let startDate = ref(new Date(props.earliest_order_date))
 let endDate = ref(new Date(props.latest_order_date))
 let date = ref([startDate.value, endDate.value])
 
+/**
+ * Bulk selection
+ */
+let multiselectMode = ref(false)
+let multiselected = reactive({
+    orders: []
+})
+
 const formatDate = ([date1, date2]) => {
     const startDay = date1.getDate()
     const startMonth = date1.getMonth() + 1
@@ -73,13 +81,12 @@ function changeStatus(selectedStatus) {
     selectedStatus = selectedStatus.toLowerCase()
     status.value = selectedStatus
     filterOrders()
-    // if (selectedStatus !== 'all') {
-    //     orders.value = props.orders.filter((order) => {
-    //         return order.status.toLowerCase() === selectedStatus
-    //     })
-    // } else {
-    //     orders.value = props.orders
-    // }
+
+    // Reset multiselected status
+    multiselectMode.value = false
+    for(let order of orders.value) {
+        order.multiselected = false
+    }
 }
 
 function filterByDeliveryMethod(methodID) {
@@ -195,25 +202,121 @@ function changeDate() {
     filterOrders()
 }
 
-/**
- * Bulk selection
- */
-let multiselectMode = ref(false)
-let multiselectStatus = ref('')
-let multiselected = reactive({
-    orders: []
-})
 function toggleMultiselect() {
     multiselectMode.value = !multiselectMode.value
+    if (multiselectMode.value === false) {
+        multiselected.orders = []
+    }
 }
 
 function selectRow(order) {
-    multiselected.orders.push(order)
-    multiselectStatus.value = order.status
+    if (multiselectMode.value === true) {
+        order.multiselected = !order.multiselected
+    }
 }
 
-function confirmMultiselect() {
-    console.log(multiselected)
+let multiselectedOrders = reactive({
+    orders: []
+})
+
+// Convert all multiselected orders to list, to be passed to backend and process
+function getMultiselectedOrderList() {
+    for(let order of orders.value) {
+        if(order.multiselected) {
+            multiselectedOrders.orders.push(order.id)
+        }
+    }
+}
+
+function bulkApproveOrder() {
+    Swal.fire({
+        text: 'Approve selected orders?',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-approve-order', multiselectedOrders)
+        }
+    })
+}
+
+function bulkRejectOrder() {
+    Swal.fire({
+        text: 'Reject selected orders?',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-reject-order', multiselectedOrders)
+        }
+    })
+}
+
+function bulkInTransit() {
+    Swal.fire({
+        text: 'Change selected orders to In Transit?',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-in-transit', multiselectedOrders)
+        }
+    })
+}
+
+function bulkCancelOrder() {
+    Swal.fire({
+        text: 'Change selected orders to In Transit?',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-cancel-order', multiselectedOrders)
+        }
+    })
+}
+
+function bulkCompleteOrder() {
+    Swal.fire({
+        text: 'Complete selected orders?',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-complete-order', multiselectedOrders)
+        }
+    })
+}
+
+function bulkApproveReturn() {
+    Swal.fire({
+        text: 'Approve return of selected orders',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-approve-return', multiselectedOrders)
+        }
+    })
+}
+
+function bulkRejectReturn() {
+    Swal.fire({
+        text: 'Reject return of selected orders',
+        icon: 'info',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            getMultiselectedOrderList()
+            router.put('/bulk-in-transit', multiselectedOrders)
+        }
+    })
 }
 </script>
 
@@ -363,13 +466,39 @@ function confirmMultiselect() {
                         <div v-if="deliveryMethod !== 'all'">
                             Selected Delivery : <span class="text-gray-400">{{ deliveryMethod.delivery_method }}</span>
                         </div>
-<!--                        <div class="md:flex md:items-center">-->
-<!--                            <button type="button" @click="toggleMultiselect"-->
-<!--                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">-->
-<!--                                Bulk Select-->
-<!--                            </button>-->
-<!--                            <button @click="confirmMultiselect">Confirm</button>-->
-<!--                        </div>-->
+                        <div class="md:flex md:items-center"
+                             v-if="status !== 'all' && status !== 'return' && status !=='rejected' && status !== 'cancelled' && status !== 'completed'">
+                            <button type="button" @click="toggleMultiselect"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                Bulk Select
+                            </button>
+                            <fwb-dropdown text="Delivery Method" placement="bottom"
+                                          class="mt-2 md:mt-0 ml-0 md:ml-2 w-full md:w-auto">
+                                <template #trigger>
+                                <span
+                                    class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2 flex items-center">
+                                    Action
+                                    <font-awesome-icon icon="angle-down" class="ml-2"/>
+                                </span>
+                                </template>
+                                <fwb-list-group v-if="status === 'pending'">
+                                    <fwb-list-group-item @click="bulkApproveOrder">Approve</fwb-list-group-item>
+                                    <fwb-list-group-item @click="bulkRejectOrder">Reject</fwb-list-group-item>
+                                </fwb-list-group>
+                                <fwb-list-group v-if="status === 'approved'">
+                                    <fwb-list-group-item @click="bulkInTransit">In Transit</fwb-list-group-item>
+                                    <fwb-list-group-item @click="bulkCancelOrder">Cancel</fwb-list-group-item>
+                                </fwb-list-group>
+                                <fwb-list-group v-if="status === 'in transit'">
+                                    <fwb-list-group-item @click="bulkCompleteOrder">Complete</fwb-list-group-item>
+                                    <fwb-list-group-item @click="bulkReturnOrder">Return</fwb-list-group-item>
+                                </fwb-list-group>
+                                <fwb-list-group v-if="status === 'pending return'">
+                                    <fwb-list-group-item @click="bulkApproveReturn">Approve</fwb-list-group-item>
+                                    <fwb-list-group-item @click="bulkRejectReturn">Reject</fwb-list-group-item>
+                                </fwb-list-group>
+                            </fwb-dropdown>
+                        </div>
                         <div class="relative overflow-x-auto sm:rounded-lg mt-4">
                             <table
                                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-2 border-gray-100">
@@ -402,10 +531,10 @@ function confirmMultiselect() {
                                 </thead>
                                 <tbody v-if="orders.length > 0">
                                 <tr class="border-b"
-                                    :class="order.status.toLowerCase() === 'pending return' ? 'bg-gray-200' : 'bg-white  hover:bg-gray-50'"
+                                    :class="order.status.toLowerCase() === 'pending return' ? 'bg-gray-200' : 'bg-white hover:bg-gray-50 hover:cursor-pointer'"
                                     v-for="(order, index) in orders" :key="index" @click="selectRow(order)">
-                                    <td class="px-6 py-4">
-                                        <input type="checkbox" :key="index" :value="order.id" v-show="multiselectMode"
+                                    <td class="pl-6 py-4">
+                                        <input type="checkbox" :key="index" :value="order.multiselected" v-show="multiselectMode" :checked="order.multiselected"
                                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2">
                                     </td>
                                     <th scope="row"
@@ -506,7 +635,7 @@ function confirmMultiselect() {
                                 </tbody>
                                 <tbody v-else>
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <th scope="row" colspan="6"
+                                    <th scope="row" colspan="8"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
                                         No orders found
                                     </th>

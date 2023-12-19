@@ -3,8 +3,6 @@ import {Head, Link} from '@inertiajs/vue3';
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import moment from 'moment/moment.js';
-import {FwbAccordion, FwbAccordionContent, FwbAccordionHeader, FwbAccordionPanel} from "flowbite-vue";
 import {reactive, ref} from "vue";
 
 const props = defineProps({
@@ -34,19 +32,16 @@ let modalGroupDetails = reactive({
     id: 0,
     name: '',
     total_pv: 0,
+    total_order: 0,
     members: [],
     leader: {},
     staffs: [],
 })
 
 let groupPvRecords = ref({})
-let pvRecordsLoading = ref(true)
+let groupDetailsLoading = ref(true)
 
-async function getGroupPvRecords() {
-    let response = await axios.get(`/group-pv-record/${modalGroupDetails.id}`)
-}
-
-function showGroupDetail(group) {
+async function showGroupDetail(group) {
     document.getElementById('groupDetailModal').classList.remove('hidden')
     modalGroupDetails.id = group.id
     modalGroupDetails.name = group.name
@@ -58,8 +53,16 @@ function showGroupDetail(group) {
     modalGroupDetails.staffs = group.members.filter((member) => {
         return member.is_leader === 'no'
     })
-
     isModalOpen.value = true
+
+    groupDetailsLoading.value = true
+    await axios.get(`/api/group-sales-records/${modalGroupDetails.id}`)
+        .then((result) => {
+            groupDetailsLoading.value = false
+            groupPvRecords.value = result.data
+
+            modalGroupDetails.total_order = groupPvRecords.value.length
+        })
 }
 
 function closeModal() {
@@ -83,11 +86,6 @@ function closeModal() {
                             <p class="text-2xl font-bold">Group Management</p>
                             <p class="text-sm text-gray-600">Total <b>{{ groups.length }}</b> groups</p>
                         </div>
-                        <Link :href="route('seller.create')"
-                              class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 ml-auto flex items-center">
-                            <font-awesome-icon icon="plus-circle" class="mr-2"/>
-                            New Group
-                        </Link>
                     </div>
                     <div class="p-6">
                         <div id="search-bar" class="mb-4">
@@ -173,7 +171,19 @@ function closeModal() {
                     <font-awesome-icon icon="times-circle"/>
                 </button>
             </div>
-            <div class="bg-white pb-6 px-6 rounded-lg">
+            <div role="status" v-if="groupDetailsLoading" class="flex items-center h-full justify-center">
+                <svg aria-hidden="true" class="inline w-64 h-64 text-gray-200 animate-spin fill-red-600"
+                     viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="currentColor"/>
+                    <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentFill"/>
+                </svg>
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="bg-white pb-6 px-6 rounded-lg" v-else>
                 <div id="group-details-name-section">
                     <div class="flex items-center p-6">
                         <div class="border-r-2 border-gray-300 w-1/2 h-full p-16">
@@ -186,7 +196,7 @@ function closeModal() {
                             </div>
                             <div class="mt-6">
                                 <p class="text-sm text-gray-400">Total Orders</p>
-                                <p class="text-xl">{{ modalGroupDetails.total_pv }}</p>
+                                <p class="text-xl">{{ modalGroupDetails.total_order }}</p>
                             </div>
                         </div>
                     </div>
@@ -197,11 +207,6 @@ function closeModal() {
                                         modalGroupDetails.members.length
                                     }}</b></span></p>
                             </div>
-                            <Link href=""
-                                  class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1 mr-2 ml-auto flex items-center">
-                                <font-awesome-icon icon="pen" class="mr-2"/>
-                                Edit
-                            </Link>
                         </div>
                         <div id="modal-members-list">
                             <ul class="w-full text-sm font-medium text-gray-900 bg-white">
@@ -225,23 +230,19 @@ function closeModal() {
                             <p class="font-bold">Sales Records</p>
                         </div>
                     </div>
-                    <div class="text-center p-16 mt-6">
-                        <div role="status" v-if="pvRecordsLoading">
-                            <svg aria-hidden="true" class="inline w-16 h-16 text-gray-200 animate-spin fill-red-600"
-                                 viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                    fill="currentColor"/>
-                                <path
-                                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                    fill="currentFill"/>
-                            </svg>
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div v-else>
-                            <ul class="w-full text-sm font-medium text-gray-900 bg-white">
-                            </ul>
-                        </div>
+                    <div v-if="groupPvRecords.length > 0">
+                        <ul class="w-full text-sm font-medium text-gray-900 bg-white">
+                            <li v-for="(record, index) in groupPvRecords" class="flex items-center px-6 py-2" :key="index">
+                                <div>
+                                    <p class="text-lg">#{{ record.order_no }}</p>
+                                    <p class="text-lg text-gray-500">{{ record.seller.name }}</p>
+                                </div>
+                                <span class="ml-auto text-lg">RM {{ record.total_price.toFixed(2) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-center p-16 mt-6" v-else>
+                        <p class="text-2xl font-semibold">No sales record found</p>
                     </div>
                 </div>
             </div>

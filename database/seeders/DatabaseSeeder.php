@@ -189,61 +189,123 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create products
-        $products = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $products[] = Product::create([
-                'name'           => 'Item ' . $i,
-                'description'    => fake()->text(),
-                'pv'             => 10,
-                'price'          => fake()->randomFloat(2, 0, 30),
-                'stock_quantity' => rand(50, 300),
-                'status'         => 'active',
-            ]);
-        }
-
-        // Create packages
-        for ($p = 0; $p <= 4; $p++) {
-            $package = Package::create([
-                'name'        => 'Package' . $p,
-                'description' => 'Bundle package',
-                'status'      => fake()->randomElement(['active', 'inactive']),
-            ]);
-        }
-
-        $package_product_data = [
+        // Fixed products and packages
+        $products            = [];
+        $b_solution          = Product::create([
+            'name'           => 'B Solution',
+            'description'    => '',
+            'pv'             => '240',
+            'cost'           => 150,
+            'price'          => 240,
+            'stock_quantity' => 999,
+            'status'         => 'active',
+        ]);
+        $b_solution_packages = [
             [
-                'package_id' => 1,
-                'product_id' => 1,
-                'quantity'   => 2,
-                'price'      => 90,
+                'name'     => 'B Solution Package 1',
+                'quantity' => 1,
+                'price'    => 240,
             ],
             [
-                'package_id' => 2,
-                'product_id' => 1,
-                'quantity'   => 3,
-                'price'      => 135,
+                'name'     => 'B Solution Package 2',
+                'quantity' => 2,
+                'price'    => 450,
             ],
             [
-                'package_id' => 3,
-                'product_id' => 1,
-                'quantity'   => 5,
-                'price'      => 220,
+                'name'     => 'B Solution Package 3',
+                'quantity' => 5,
+                'price'    => 1050,
             ],
             [
-                'package_id' => 4,
-                'product_id' => 1,
-                'quantity'   => 7,
-                'price'      => 300,
+                'name'     => 'B Solution Package 4',
+                'quantity' => 10,
+                'price'    => 2000,
             ],
             [
-                'package_id' => 5,
-                'product_id' => 1,
-                'quantity'   => 10,
-                'price'      => 400,
+                'name'     => 'B Solution Package 5',
+                'quantity' => 30,
+                'price'    => 5400,
             ],
         ];
-        foreach ($package_product_data as $datum) {
-            PackageProduct::create($datum);
+        foreach ($b_solution_packages as $package) {
+            $quantity = $package['quantity'];
+            $price    = $package['price'];
+
+            $b_solution_package = Package::create([
+                'name'        => $package['name'],
+                'description' => sprintf('%d box', $quantity),
+                'status'      => 'active',
+            ]);
+
+            PackageProduct::create([
+                'package_id' => $b_solution_package->id,
+                'product_id' => $b_solution->id,
+                'quantity'   => $quantity,
+                'price'      => $price,
+            ]);
+        }
+
+        $dynamint          = Product::create([
+            'name'           => 'Dynamint',
+            'description'    => '',
+            'pv'             => '200',
+            'cost'           => 100,
+            'price'          => 200,
+            'stock_quantity' => 999,
+            'status'         => 'active',
+        ]);
+        $dynamint_packages = [
+            [
+                'name'     => 'Dynamint Package 1',
+                'quantity' => 0.5,
+                'price'    => 120,
+            ],
+            [
+                'name'     => 'Dynamint Package 2',
+                'quantity' => 1,
+                'price'    => 200,
+            ],
+            [
+                'name'     => 'Dynamint Package 3',
+                'quantity' => 2,
+                'price'    => 350,
+            ],
+            [
+                'name'     => 'Dynamint Package 4',
+                'quantity' => 3,
+                'price'    => 550,
+            ],
+            [
+                'name'     => 'Dynamint Package 5',
+                'quantity' => 5,
+                'price'    => 800,
+            ],
+            [
+                'name'     => 'Dynamint Package 6',
+                'quantity' => 10,
+                'price'    => 1500,
+            ], [
+                'name'     => 'Dynamint Package 7',
+                'quantity' => 30,
+                'price'    => 4200,
+            ],
+        ];
+        foreach ($dynamint_packages as $package) {
+            $quantity = $package['quantity'];
+            $price    = $package['price'];
+
+            $dynamint_package = Package::create([
+                'name'        => $package['name'],
+                'description' => sprintf('%d box', $quantity),
+                'status'      => 'active',
+            ]);
+
+            PackageProduct::create([
+                'package_id' => $dynamint_package->id,
+                'product_id' => $dynamint->id,
+                'quantity'   => $quantity,
+                'price'      => $price,
+            ]);
         }
 
         // Create deliveries

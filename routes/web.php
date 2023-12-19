@@ -87,6 +87,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/return-order/{order}', [OrderController::class, 'returnOrder'])->name('order.return');
     Route::put('/approve-return/{order}', [OrderController::class, 'approveReturn'])->name('order.approveReturn');
     Route::put('/in-transit-order/{order}', [OrderController::class, 'inTransitOrder'])->name('order.inTransit');
+    Route::put('/bulk-approve-order', [OrderController::class, 'bulkApproveOrder'])->name('order.bulkApprove');
+    Route::put('/bulk-reject-order', [OrderController::class, 'bulkRejectOrder'])->name('order.bulkReject');
+    Route::put('/bulk-in-transit', [OrderController::class, 'bulkInTransit'])->name('order.bulkInTransit');
+    Route::put('/bulk-cancel-order', [OrderController::class, 'bulkCancelOrder'])->name('order.bulkCancelOrder');
+    Route::put('/bulk-complete-order', [OrderController::class, 'bulkCompleteOrder'])->name('order.bulkCompleteOrder');
+    Route::put('/bulk-approve-return', [OrderController::class, 'bulkApproveReturn'])->name('order.bulkApproveReturn');
 
     /**
      * Delivery Methods

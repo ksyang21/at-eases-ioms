@@ -18,7 +18,8 @@ class Product extends Model
         'price',
         'stock_quantity',
         'image',
-        'status'
+        'status',
+        'cost'
     ];
 
     public function inventoryLogs(): \Illuminate\Database\Eloquent\Relations\HasMany

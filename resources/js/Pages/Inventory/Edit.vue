@@ -16,6 +16,7 @@ let form = reactive({
     id: props.product.id,
     name: props.product.name,
     description: props.product.description,
+    cost: props.product.cost,
     price: props.product.price,
     image: null,
     imagePreview: props.product.image,
@@ -179,9 +180,18 @@ function submitForm() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid gap-6 mb-6 md:grid-cols-2">
+                            <div class="grid gap-6 mb-6 md:grid-cols-3">
                                 <div>
-                                    <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Price
+                                    <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Cost
+                                        (MYR)</label>
+                                    <input type="number" id="cost"
+                                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                           placeholder="Product Cost" required v-model="form.cost" step="0.01">
+                                    <p class="text-red-600 text-sm" v-if="showError && form.cost < 0.00">Cost must be
+                                        given</p>
+                                </div>
+                                <div>
+                                    <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Selling Price (1 box)
                                         (MYR)</label>
                                     <input type="number" id="price"
                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
